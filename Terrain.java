@@ -16,10 +16,9 @@ public class Terrain implements Serializable
 
 	private int locationX;
 	private int locationY;
-
 	private int mapHeight;
 	private int mapWidth;
-
+	private int movementCost;
 	private int food;
 	private int production;
 	private int health;
@@ -85,6 +84,10 @@ public class Terrain implements Serializable
 	public int getScience()
 	{
 		return science;
+	}
+	public int getMovementCost()
+	{
+		return movementCost;
 	}
 ////////////////////////////////////////////////////////////////////////// setters
 	public void setVisability(boolean newVisability)
@@ -749,6 +752,7 @@ public class Terrain implements Serializable
 		//base terrain values
 		if(terrainType == "Desert")
 		{
+			movementCost = 1;
 			food = 1;
 			production = 1;
 			health = -1;
@@ -756,6 +760,7 @@ public class Terrain implements Serializable
 		}
 		else if(terrainType == "Jungle")
 		{
+			movementCost = 2;
 			food = 3;
 			production = 2;
 			health = -1;
@@ -763,6 +768,7 @@ public class Terrain implements Serializable
 		}
 		else if(terrainType == "Plains")
 		{
+			movementCost = 1;
 			food = 2;
 			production = 3;
 			health = 0;
@@ -770,6 +776,7 @@ public class Terrain implements Serializable
 		}
 		else if(terrainType == "Water")
 		{
+			movementCost = 1;
 			food = 3;
 			production = 1;
 			health = +1;
@@ -777,6 +784,7 @@ public class Terrain implements Serializable
 		}
 		else if(terrainType == "Tundra")
 		{
+			movementCost = 1;
 			food = 1;
 			production = 1;
 			health = 0;
@@ -784,11 +792,21 @@ public class Terrain implements Serializable
 		}
 		else if(terrainType == "Marshland")
 		{
+			movementCost = 2;
 			food = 1;
 			production = 1;
 			health = -1;
 			science = 1;
 		}
+
+		if(terrainFeatures == "Mountain")
+			movementCost = movementCost + 3;
+		else if(terrainFeatures == "Hill")
+			movementCost = movementCost + 1;
+		else if(terrainFeatures == "Iceberg")
+			movementCost = movementCost + 1;		
+		else if(terrainFeatures == "Forest")
+			movementCost = movementCost + 1;
 
 		//terrain base modifiers
 		if(terrainResources == "Stone")

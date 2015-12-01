@@ -1,4 +1,5 @@
 import javax.swing.ImageIcon;
+import java.util.ArrayList;
 
 public class Settler extends Unit
 {
@@ -10,13 +11,23 @@ public class Settler extends Unit
 	{
 		unitName = "Settler";
 		specialAbility = "Settle";
+
+		nonAccessibleTerrainType = new ArrayList<String>();
+		nonAccessibleTerrainFeatures = new ArrayList<String>();
+
+		nonAccessibleTerrainType.add("Water");
+		nonAccessibleTerrainFeatures.add("Glaciers");
+		nonAccessibleTerrainFeatures.add("Icebergs");
+
 		unitImage = new ImageIcon(getClass().getResource("/Images/Units/settler.png"));
+
 		x = spawnX;
 		y = spawnY;	
 		movement = 2;
 		maxMovement = 2;
 		strength = 0;
 		health = 100;	
+		productionCost = 20;
 	}
 	//setters
 	

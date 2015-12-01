@@ -1,4 +1,5 @@
 import javax.swing.ImageIcon;
+import java.util.ArrayList;
 import java.io.Serializable;
 
 public class Unit implements Serializable
@@ -8,14 +9,17 @@ public class Unit implements Serializable
 	public String specialAbility;
 
 	public int x;
-	public int y;
-	private int destinationX = x;
-	private int destinationY = y;
+	public int y;	
 	public int movement;
 	public int maxMovement;
 	public int strength;
 	public int health;
+	public int productionCost;
+	private int destinationX = x;
+	private int destinationY = y;
 
+	public ArrayList<String> nonAccessibleTerrainType;
+	public ArrayList<String> nonAccessibleTerrainFeatures;
 
 	private boolean focus = false;
 	public boolean specialAbilityActivate = false;
@@ -58,6 +62,7 @@ public class Unit implements Serializable
 	{
 		specialAbilityActivate = newBool;
 	}
+
 	
 	//getters
 	public int getX()
@@ -111,6 +116,18 @@ public class Unit implements Serializable
 	public int getHealth()
 	{
 		return health;
+	}
+	public int getProductionCost()
+	{
+		return productionCost;
+	}
+	public ArrayList<String> getNonAccessibleTerrainType()
+	{
+		return nonAccessibleTerrainType;
+	}
+	public ArrayList<String> getNonAccessibleTerrainFeatures()
+	{
+		return nonAccessibleTerrainFeatures;
 	}
 
 	//additional methods
@@ -179,7 +196,6 @@ public class Unit implements Serializable
 				{
 					x -= 75; 
 				}
-				movement--;
 			}						
 		}
 	}		

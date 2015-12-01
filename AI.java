@@ -1,5 +1,6 @@
+import java.io.Serializable;
 
-public class AI
+public class AI implements Serializable
 {
 	//variables
 	

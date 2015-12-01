@@ -28,8 +28,6 @@ public class FileActions implements Serializable
 			for(int i = 0; i < objects.size();i++)
 			{
 				save.writeObject(objects.get(i));
-				System.out.println(objects.get(i).getCurrentMapHorizontal());
-
 			}
 			// Close the file.
 			save.close(); // This also closes saveFile.
@@ -57,7 +55,6 @@ public class FileActions implements Serializable
 			// For primitive types, use the corresponding reference class.
 	
 			 stuff = (GamePanel) save.readObject();
-			 System.out.println(stuff.getCurrentMapHorizontal());
 
 			// Close the file.
 			save.close(); // This also closes saveFile.

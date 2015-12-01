@@ -1,5 +1,7 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.JInternalFrame;
+import javax.swing.JDesktopPane;
 import java.io.File;
 import java.awt.*;  
 import javax.swing.*;  
@@ -46,7 +48,7 @@ public class GameWindow extends JFrame implements ActionListener
 	public GameWindow()
 	{
 		//set specifications for frame
-		super("New Game v 0.00: pre-Alpha");
+		super("New Game v 0.01a: pre-Alpha");
 		this.setResizable(false);
 		setFocusable(true);		
 		setSize(1600, 800);
@@ -145,9 +147,7 @@ public class GameWindow extends JFrame implements ActionListener
 		//starts a new game
 		if(e.getSource() == newGame)
 		{
-			//gamePanel = null;
-			//gamePanel = new GamePanel();
-
+			//gamePanel.setNewGameSetup(true);
 			gamePanel.setNewGameSetup(true);
 			gamePanel.setMainMenuView(false);
 
