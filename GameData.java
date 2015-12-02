@@ -14,8 +14,8 @@ public class GameData implements Serializable
 	private int turnNumber;
 	private int cityFocusNumber;
 	private int unitFocusNumber;
-	private int turnsToBuild;
-	private int maxTurnsToBuild;
+	private int currentMapHoriztonal;
+	private int currentMapVertical;
 
 	private  Random r;
 
@@ -25,6 +25,7 @@ public class GameData implements Serializable
 	private ArrayList<City> playerCities;
 	private ArrayList<Unit> playerBuildableUnits;
 	private ArrayList<Unit> buildUnitQueue;
+	private ArrayList<Integer> turnsToBuildList;
 	
 	private boolean playerTurn;
 	private boolean newCitySettled;
@@ -41,8 +42,8 @@ public class GameData implements Serializable
 		turnNumber= 0;
 	 	cityFocusNumber = -1;
 	 	unitFocusNumber = 0;
-	 	turnsToBuild = 0;
-	 	maxTurnsToBuild = 0;
+		currentMapHoriztonal= 0;
+	 	currentMapVertical= 0;
 
 	 	r = new Random();
 
@@ -50,6 +51,7 @@ public class GameData implements Serializable
 		playerCities = new ArrayList<City>();
 		playerBuildableUnits = new ArrayList<Unit>();
 		buildUnitQueue = new ArrayList<Unit>();
+		turnsToBuildList = new ArrayList<Integer>();
 	 	
 		newCitySettled = false;
 		playerTurn = true;
@@ -81,12 +83,14 @@ public class GameData implements Serializable
 	{
 		newCitySettled = newFocus;
 	}
-	public void setTurnsToBuild(int turns)
+	public void setCurrentMapVertical(int newVertical)
 	{
-		turnsToBuild = turns;
+		currentMapVertical = newVertical;
 	}
-
-
+	public void setCurrentMapHorizontal(int newHorizontal)
+	{
+		currentMapHoriztonal = newHorizontal;
+	}
 
 
 	//getters
@@ -107,10 +111,14 @@ public class GameData implements Serializable
 	{
 		return unitFocusNumber;
 	}
-	public int getTurnsToBuild()
+	public int getCurrentMapHorizontal()
 	{
-		return turnsToBuild;
+		return currentMapHoriztonal;
 	}
+	public int getCurrentMapVertical()
+	{
+		return currentMapVertical;
+	}	
 	public boolean getNewCitySettled()
 	{
 		return newCitySettled;
@@ -163,7 +171,14 @@ public class GameData implements Serializable
 	{
 		return buildUnitQueue.get(selection);
 	}
-
+	public ArrayList<Integer> getTurnToBuildList()
+	{
+		return turnsToBuildList;
+	}
+	public int getTurnsToBuildListSpecific(int selection)
+	{
+		return turnsToBuildList.get(selection);
+	}
 
 
 
@@ -199,7 +214,7 @@ public class GameData implements Serializable
 		}
 	}
 	//sets up the initial conditions of the game
-	public void newGameSetup(int mapWidth,int mapHeight,int currentMapHoriztonal, int currentMapVertical)
+	public void newGameSetup(int mapWidth,int mapHeight)
 	{
 		setupTerrain(mapWidth,mapHeight);
 
@@ -225,28 +240,31 @@ public class GameData implements Serializable
 		reorganizeBuildableUnits();
 	}
 	//goes through the process of settling a new city and removing the settler from the player unit list
-	public void settleNewCity(int currentMapVertical, int currentMapHoriztonal)
+	public void settleNewCity()
 	{
 		//adds new tiles for the city
 		ArrayList<Terrain> cityTiles = new ArrayList<Terrain>();
-		int unitX = (int)Math.floor((playerUnits.get(unitFocusNumber).getX()/75));
-		int unitY = (int)Math.floor((playerUnits.get(unitFocusNumber).getY()/75));
-		for(int k = (unitY + currentMapVertical) -1; k < (unitY + currentMapVertical) + 2; k++)
+		int unitX = (int)Math.floor((playerUnits.get(unitFocusNumber).getX() + currentMapHoriztonal)/75);
+		int unitY = (int)Math.floor((playerUnits.get(unitFocusNumber).getY() + currentMapVertical)/75);
+		for(int k = unitY -1; k < unitY + 2; k++)
 		{
-			for(int j = (unitX+ currentMapHoriztonal) -1; j < (unitX+currentMapHoriztonal) + 2; j++)
+			for(int j = unitX -1; j < unitX + 2; j++)
 			{
 				cityTiles.add(terrain[k][j]);
 			}							
 		}						
 		//adds new city
-		playerCities.add(new City(playerUnits.get(unitFocusNumber).getX(),playerUnits.get(unitFocusNumber).getY(),cityTiles));					
+		playerCities.add(new City(playerUnits.get(unitFocusNumber).getX(),playerUnits.get(unitFocusNumber).getY(),cityTiles));
+		//adds a turn counter for construction into the build item list
+		turnsToBuildList.add(playerCities.size()-1,-20000);
+		setDefaultCityBuild(playerCities.size()-1,unitX,unitY);
 		//removes settler
 		playerUnits.remove(unitFocusNumber);
 		unitFocusNumber = -1;
 		newCitySettled = true;		
 	}
 	//checks the terrain around a newly settled city to eliminate fog where applicable
-	public void checkNewCityTerrain(int currentMapVertical, int currentMapHoriztonal, int mapWidth, int mapHeight)
+	public void checkNewCityTerrain(int mapWidth, int mapHeight)
 	{
 		int cityX = (int)Math.floor((playerCities.get(playerCities.size() - 1).getX()/75));
 		int cityY = (int)Math.floor((playerCities.get(playerCities.size() - 1).getY()/75));
@@ -265,7 +283,7 @@ public class GameData implements Serializable
 		newCitySettled = false;
 	}
 	//checks to see if the unit can move to the selected tile
-	public boolean checkUnitMovement(int newX,int newY,int currentMapVertical, int currentMapHoriztonal)
+	public boolean checkUnitMovement(int newX,int newY)
 	{
 		int tempTypeCheck = 0;
 		int tempFeaturesCheck = 0;
@@ -291,7 +309,7 @@ public class GameData implements Serializable
 			return false;			
 	}
 	//changes unit data during movement
-	public void updateUnitMovementData(int newX,int newY,int currentMapVertical, int currentMapHoriztonal)
+	public void updateUnitMovementData(int newX,int newY)
 	{
 		playerUnits.get(unitFocusNumber).setMovement(playerUnits.get(unitFocusNumber).getMovement() - terrain[newY + currentMapVertical][newX + currentMapHoriztonal].getMovementCost());
 	}
@@ -301,43 +319,82 @@ public class GameData implements Serializable
 		Collections.sort(playerBuildableUnits,new BuildableProductionComp());
 	}
 	//calculates the number of turns to build a certain unit
-	public int calculateTurnsToBuild(int selection)
-	{
-		return (int)Math.floor(playerBuildableUnits.get(selection).getProductionCost()/playerCities.get(cityFocusNumber).getProduction());
+	public int calculateTurnsToBuildSpecific(int selection, String buildCondition)
+	{		
+		if(buildCondition.equals("Default"))//when a new city is built or the default city build is used
+			return (int)Math.floor(buildUnitQueue.get(selection).getProductionCost()/playerCities.get(selection).getProduction());
+		else//when the player selects a specific build
+			return (int)Math.floor(playerBuildableUnits.get(selection).getProductionCost()/playerCities.get(cityFocusNumber).getProduction());
 	}
-	//wraps up the turn and processes all relevant player data 
-	public void endPlayerTurn()
+	//resets the time to build something based on terrain focus changes
+	public void calculateTurnsToBuild()
 	{
-		//checks production for cities
-		if(turnsToBuild > 0)
-			turnsToBuild--;
-		if(turnsToBuild <= 0 && turnsToBuild > -10000)
-			buildNewUnit();
+		for(int i = 0; i < turnsToBuildList.size(); i++)
+		{
+			turnsToBuildList.set(i,(int)Math.floor(buildUnitQueue.get(i).getProductionCost()/playerCities.get(i).getProduction()));
+		}
+	}
+	//sets the default build for a city
+	public void setDefaultCityBuild(int cityNumber,int spawnX, int spawnY)
+	{
+		buildUnitQueue.add(cityNumber,new Scout(75*spawnX, 75*spawnY));
 
+		int turnsToBuild = calculateTurnsToBuildSpecific(cityNumber,"Default");
+
+		turnsToBuildList.set(cityNumber,turnsToBuild);
+	}
+	//builds the unit when it's finished
+	public void setNewUnitToBuild(int selection, String name, int spawnX, int spawnY)
+	{		
+		int turnsToBuild = calculateTurnsToBuildSpecific(selection,"City");
+
+		turnsToBuildList.set(cityFocusNumber,turnsToBuild);
+
+		if(name.equals("Settler"))
+			buildUnitQueue.set(cityFocusNumber,new Settler(75*spawnX, 75*spawnY));
+		if(name.equals("Scout"))
+			buildUnitQueue.set(cityFocusNumber,new Scout(75*spawnX, 75*spawnY));
+		
+	}		
+	//builds the next unit in the queue
+	public void buildNewUnit(int cityNumber)
+	{
+		//"builds" the new unit
+		playerUnits.add(buildUnitQueue.get(cityNumber));
+
+		int unitX = (int)Math.floor((playerCities.get(cityNumber).getX() + currentMapHoriztonal)/75);
+		int unitY = (int)Math.floor((playerCities.get(cityNumber).getY() + currentMapVertical)/75);
+
+		//default new construction is a scout, player must physically change this
+		setDefaultCityBuild(cityNumber,unitX,unitY);		
+	}
+	//resets all movement for player units
+	public void resetPlayerUnitMovement()
+	{
 		//resets movement for all units
 		for(int i = 0; i < playerUnits.size();i++)
 		{
 			playerUnits.get(i).setMovement(playerUnits.get(i).getMaxMovement());
 		}
 	}
-	//builds the unit when it's finished
-	public void setNewUnitToBuild(int selection, String name, int spawnX, int spawnY)
+	//wraps up the turn and processes all relevant player data 
+	public void endPlayerTurn()
 	{
-		turnsToBuild = calculateTurnsToBuild(selection);
+		//checks if new build times are present for each city
+		//calculateTurnsToBuild();
 
-		if(name.equals("Settler"))
-			buildUnitQueue.add(new Settler(75*spawnX, 75*spawnY));
-		if(name.equals("Scout"))
-			buildUnitQueue.add(new Scout(75*spawnX, 75*spawnY));
-	}
-	//builds the next unit in the queue
-	public void buildNewUnit()
-	{
-		playerUnits.add(buildUnitQueue.get(0));
-		buildUnitQueue.remove(0);
-		turnsToBuild = -20000;
-	}
-	
+		//checks production for cities
+		for(int i = 0; i < turnsToBuildList.size(); i++)
+		{
+			if(turnsToBuildList.get(i) > 1)
+				turnsToBuildList.set(i,turnsToBuildList.get(i)-1);
+			else if(turnsToBuildList.get(i) <= 1 && turnsToBuildList.get(i) > -15000)
+				buildNewUnit(i);
+		}
+
+		//resets all player units movement		
+		resetPlayerUnitMovement();		
+	}	
 }
 //comparator classes
 class BuildableProductionComp implements Comparator<Unit>
