@@ -8,6 +8,7 @@ public class City implements Serializable
 {
 	//variables
 	public String cityName;
+	private String constructionName;
 
 	public int x;
 	public int y;
@@ -20,10 +21,11 @@ public class City implements Serializable
 	private int maxFoodNumber = 0;
 	private int health = 0;
 	private int maxHealthNumber = 0;
-	private int foodForGrowth = 10;
+	private int foodForGrowth = 40;
 	private int storedFood = 0;
 	private int turnsUntilGrowth = 0;
 	private int influence = 1;
+	private int turnsToBuild;
 
 	private boolean focus = false;
 	private boolean productionFocus = false;
@@ -45,8 +47,10 @@ public class City implements Serializable
 		y = spawnY;
 		locationX = x;
 		locationY = y;
+		turnsToBuild = -1;
 
 		cityName = "";
+		constructionName = "";
 
 		for(int i = 0; i < newCityTiles.size(); i++)
 		{
@@ -73,10 +77,18 @@ public class City implements Serializable
 	{
 		influence = newInfluence;
 	}
+	public void setTurnsToBuild(int newTurns)
+	{
+		turnsToBuild = newTurns;
+	}
 	public void setCityName(String newName)
 	{
 		cityName = newName;
 	}	
+	public void setConstructionName(String newName)
+	{
+		constructionName = newName;
+	}
 	public void setFocus(boolean newFocus)
 	{
 		focus = newFocus;
@@ -279,6 +291,10 @@ public class City implements Serializable
 	{
 		return influence;
 	}
+	public int getTurnsToBuild()
+	{
+		return turnsToBuild;
+	}
 	public int getProduction()
 	{
 		return production;
@@ -322,6 +338,10 @@ public class City implements Serializable
 	public String getName()
 	{
 		return cityName;
+	}
+	public String getConstructionName()
+	{
+		return constructionName;
 	}
 
 	//other methods

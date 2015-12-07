@@ -24,11 +24,11 @@ public class Scout extends Unit
 
 		x = spawnX;
 		y = spawnY;	
-		movement = 4;
-		maxMovement = 4;
-		strength = 10;
+		movement = 6;
+		maxMovement = 6;
+		strength = 2;
 		health = 100;	
-		productionCost = 10;
+		productionCost = 15;
 	}
 	//setters
 	

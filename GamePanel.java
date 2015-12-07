@@ -36,13 +36,20 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 	private boolean newGameSetup;
 	private boolean mapView;
 	private boolean mapSizeOptions;
+	private boolean terrainOptionsAction;
 	private boolean startGame;
 	private boolean terrainFocus;
 	private boolean cityConstructionFocus;
 	private boolean[] move;
 
+	private String terrainOptions;
+	private String terrainType;
+	private String mapSize;
+
 	private Font mainMenuTitle;
 	private Font mainMenuOptions;
+
+	private ImageIcon mainBackground;
 
 	private GameData gameData;
 
@@ -53,6 +60,9 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 	 	currentMouseMapHoriztonal= 0;
 	 	currentMouseMapVertical= 0;
 	 	currentBuildOptionsVertical = 0;
+
+	 	mapSize = "None";
+	 	terrainType = "None";
 		
 	 	mainMenu = true;
 	 	newGameSetup = false;
@@ -128,7 +138,7 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 		else if(mapView == true)
 		{
 			if(startGame == true)
-				gameData.newGameSetup(mapWidth,mapHeight);
+				gameData.newGameSetup(mapWidth,mapHeight,terrainOptions);
 			startGame = false;
 
 			paintTerrain(g);
@@ -297,8 +307,8 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 	//paints main menu
 	public void paintMainMenu(Graphics g)
 	{
-		g.setColor(Color.blue);
-		g.fillRect(0,0,1450,750);
+		mainBackground = new ImageIcon(getClass().getResource("/Images/Backgrounds/StartBackground.png"));
+		mainBackground.paintIcon(this,g,0,0);
 
 		g.setFont(mainMenuTitle);
 		g.setColor(Color.white);
@@ -309,29 +319,58 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 	//paints main menu
 	public void paintSetupScreen(Graphics g)
 	{
-		g.setColor(Color.blue);
-		g.fillRect(0,0,1450,750);
+		gameData.createSound("Sounds/mainMusic.wav");
+		mainBackground = new ImageIcon(getClass().getResource("/Images/Backgrounds/StartBackground.png"));
+		mainBackground.paintIcon(this,g,0,0);
 
-		g.setFont(mainMenuOptions);
+		Font mainMenuOptionsI = new Font("Calibri",Font.BOLD,18);
+
+		g.setFont(mainMenuOptionsI);
 		g.setColor(Color.white);
-		g.drawString("MapSize",125,125);
 
-		g.draw3DRect(100,100,100,50,true);
+		for(int i = 0; i < 4; i++)
+		{
+			g.draw3DRect(1000,50 + 50*(i),225,50,true);
+		}
+
+		g.drawString("Game Setup ",1015,75);
+		g.drawString("Map Size: " + mapSize,1015,125);
+		g.drawString("Terrain Type: " + terrainType,1015,175);
+
+
+		g.drawString("MapSize",610,125);
+
+		g.draw3DRect(600,100,125,50,true);
 
 		if(mapSizeOptions == true)
 		{
 			for(int i = 0; i < 4; i++)
 			{
-				g.draw3DRect(250,50*(i+1),100,50,true);
+				g.draw3DRect(725,50*(i+1),100,50,true);
 			}
-			g.drawString("Small",275,75);
-			g.drawString("Medium",275,125);
-			g.drawString("Large",275,175);
-			g.drawString("Huge",275,225);
+			g.drawString("Small",735,75);
+			g.drawString("Medium",735,125);
+			g.drawString("Large",735,175);
+			g.drawString("Huge",735,225);
 		}
 
-		g.draw3DRect(200,700,100,50,true);
-		g.drawString("Start",225,725);
+		g.drawString("Terrain Type",610,225);
+
+		g.draw3DRect(600,200,125,50,true);
+
+		if(terrainOptionsAction == true)
+		{
+			for(int i = 0; i < 2; i++)
+			{
+				g.draw3DRect(725,150+50*(i),125,50,true);
+			}
+			g.drawString("Pangea",735,175);
+			g.drawString("Archipelago",735,225);
+			
+		}
+
+		g.draw3DRect(900,700,100,50,true);
+		g.drawString("Start",925,725);
 	}
 
 
@@ -411,7 +450,7 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 			g.drawString("Production: " + gameData.getPlayerCitiesSpecific(gameData.getCityFocusNumber()).getProduction(),1180,380);
 			g.drawString("Health: " + gameData.getPlayerCitiesSpecific(gameData.getCityFocusNumber()).getHealth(),1180,400);
 			if(gameData.getPlayerBuildUnitQueue().size() > 0)
-				g.drawString("Building: " + gameData.getPlayerBuildUnitQueueSpecific(0).getName() + " in " + gameData.getTurnsToBuildListSpecific(gameData.getCityFocusNumber()), 1180, 420);	
+				g.drawString("Building: " + gameData.getPlayerBuildUnitQueueSpecific(0).getName() + " in " + gameData.getPlayerCitiesSpecific(gameData.getCityFocusNumber()).getTurnsToBuild(), 1180, 420);	
 		}
 
 		//game info
@@ -532,29 +571,33 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 		if(newGameSetup == true && mapSizeOptions == true)
 		{
 			//small map
-			if(e.getX() > 250 && e.getX() < 350 && e.getY() > 75 & e.getY() < 125)
-			{
+			if(e.getX() > 725 && e.getX() < 825 && e.getY() > 75 & e.getY() < 125)
+			{				
+				mapSize = "Small";
 				mapWidth = 25;
 				mapHeight = 25;
 				mapSizeOptions = false;
 			}
 			//medium map
-			if(e.getX() > 250 && e.getX() < 350 && e.getY() > 126 & e.getY() < 175)
+			if(e.getX() > 725 && e.getX() < 825 && e.getY() > 126 & e.getY() < 175)
 			{
+				mapSize = "Medium";
 				mapWidth = 50;
 				mapHeight = 50;
 				mapSizeOptions = false;
 			}
 			//large map
-			if(e.getX() > 250 && e.getX() < 350 && e.getY() > 176 & e.getY() < 225)
+			if(e.getX() > 725 && e.getX() < 825 && e.getY() > 176 & e.getY() < 225)
 			{
+				mapSize = "Large";
 				mapWidth = 75;
 				mapHeight = 75;
 				mapSizeOptions = false;
 			}
 			//huge map
-			if(e.getX() > 250 && e.getX() < 350 && e.getY() > 226 & e.getY() < 275)
+			if(e.getX() > 725 && e.getX() < 825 && e.getY() > 226 & e.getY() < 275)
 			{
+				mapSize = "Huge";
 				mapWidth = 100;
 				mapHeight = 100;
 				mapSizeOptions = false;
@@ -563,16 +606,46 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 		if(newGameSetup == true)
 		{
 			//map sizes menu
-			if(e.getX() > 100 && e.getX() < 200 && e.getY() > 100 & e.getY() < 150)
+			if(e.getX() > 600 && e.getX() < 700 && e.getY() > 100 & e.getY() < 150)
 			{
-				mapSizeOptions = true;
+				if(mapSizeOptions == false)
+					mapSizeOptions = true;
+				else
+					mapSizeOptions = false;
+			}
+			//terrain options
+			//map sizes menu
+			if(e.getX() > 600 && e.getX() < 700 && e.getY() > 200 & e.getY() < 250)
+			{
+				if(terrainOptionsAction == false)
+					terrainOptionsAction = true;
+				else
+					terrainOptionsAction = false;
 			}
 			//start game
-			if(e.getX() > 200 && e.getX() < 300 && e.getY() > 725 & e.getY() < 775)
+			if(e.getX() > 900 && e.getX() < 1000 && e.getY() > 725 & e.getY() < 775)
 			{
 				newGameSetup = false;
 				mapView = true;	
 				startGame = true;		
+			}
+		}
+		//terrain options
+		if(terrainOptionsAction == true)
+		{
+			//map sizes menu
+			if(e.getX() > 725 && e.getX() < 850 && e.getY() > 150 & e.getY() < 200)
+			{				
+				terrainOptions = "Pangea";
+				terrainType = terrainOptions;
+				terrainOptionsAction = false;
+			}
+			//start game
+			if(e.getX() > 725 && e.getX() < 850 && e.getY() > 200 & e.getY() < 250)
+			{
+				terrainOptions = "Archipelago";
+				terrainType = terrainOptions;
+				terrainOptionsAction = false;		
 			}
 		}
 		//building menu

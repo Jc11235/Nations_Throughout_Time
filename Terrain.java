@@ -123,7 +123,7 @@ public class Terrain implements Serializable
 		terrainResources = s;
 	}
 	//creates the actual terrain layout
-	public void setTerrain(int x,int y)
+	public void setTerrain(int x,int y,String terrainOption)
 	{
 		//Terrain Types: 1. Desert 2. Jungle 3. Plains 4. Water 5. Tundra 6. Marshland
 		//Terrain Features Types: 1. Mountains 2. Hills 3. Glaciers 4. Icebergs 5. Forest
@@ -139,46 +139,92 @@ public class Terrain implements Serializable
 
 		int terrainTypeSelection = r.nextInt(20);
 
-		if( y <=  3 || y >= mapHeight - 3 && x > 1 && x < mapWidth-2)
+		if(terrainOption.equals("Pangea"))
 		{
-			//sets the terrain type
-			if( terrainTypeSelection == 0)
-				terrainType = "Plains";
-			else if(terrainTypeSelection >=1 && terrainTypeSelection < 15)
+			if( y <=  3 || y >= mapHeight - 3 && x > 1 && x < mapWidth-2)
+			{
+				//sets the terrain type
+				if( terrainTypeSelection == 0)
+					terrainType = "Plains";
+				else if(terrainTypeSelection >=1 && terrainTypeSelection < 15)
+					terrainType = "Water";
+				else if(terrainTypeSelection >=15 && terrainTypeSelection < 21)
+					terrainType = "Tundra";								
+			}
+			else if( (y >=4 && y <= 6) || (y >=9 && y < mapHeight-3) && x > 1 && x < mapWidth-2)
+			{
+				if( terrainTypeSelection <= 1)
+					terrainType = "Desert";								
+				else if( terrainTypeSelection >= 2 && terrainTypeSelection < 4)
+					terrainType = "Jungle";								
+				else if(terrainTypeSelection >=4 && terrainTypeSelection < 13)
+					terrainType = "Plains";							
+				else if(terrainTypeSelection >=13 && terrainTypeSelection < 15)
+					terrainType = "Marshland";							
+				else if(terrainTypeSelection >=15 && terrainTypeSelection < 21)
+					terrainType = "Water";		
+			}
+			else if( y >=7 && y <9 && x > 1 && x < mapWidth-2)
+			{
+				if( terrainTypeSelection <= 4)
+					terrainType = "Plains";								
+				else if( terrainTypeSelection >= 4 && terrainTypeSelection < 6)
+					terrainType = "Marshland";						
+				else if(terrainTypeSelection >=6 && terrainTypeSelection < 10)
+					terrainType = "Desert";								
+				else if(terrainTypeSelection >=10 && terrainTypeSelection < 15)
+					terrainType = "Jungle";
+				else if(terrainTypeSelection >=15 && terrainTypeSelection < 21)
+					terrainType = "Water";			
+			}
+			else if(y > -1 && y < mapHeight && x < 2 || x > mapWidth-3)
+			{
 				terrainType = "Water";
-			else if(terrainTypeSelection >=15 && terrainTypeSelection < 21)
-				terrainType = "Tundra";								
+			}
 		}
-		else if( (y >=4 && y <= 6) || (y >=9 && y < mapHeight-3) && x > 1 && x < mapWidth-2)
+		else if(terrainOption.equals("Archipelago"))
 		{
-			if( terrainTypeSelection <= 1)
-				terrainType = "Desert";								
-			else if( terrainTypeSelection >= 2 && terrainTypeSelection < 4)
-				terrainType = "Jungle";								
-			else if(terrainTypeSelection >=4 && terrainTypeSelection < 13)
-				terrainType = "Plains";							
-			else if(terrainTypeSelection >=13 && terrainTypeSelection < 15)
-				terrainType = "Marshland";							
-			else if(terrainTypeSelection >=15 && terrainTypeSelection < 21)
-				terrainType = "Water";		
-		}
-		else if( y >=7 && y <9 && x > 1 && x < mapWidth-2)
-		{
-			if( terrainTypeSelection <= 4)
-				terrainType = "Plains";								
-			else if( terrainTypeSelection >= 4 && terrainTypeSelection < 6)
-				terrainType = "Marshland";						
-			else if(terrainTypeSelection >=6 && terrainTypeSelection < 10)
-				terrainType = "Desert";								
-			else if(terrainTypeSelection >=10 && terrainTypeSelection < 15)
-				terrainType = "Jungle";
-			else if(terrainTypeSelection >=15 && terrainTypeSelection < 21)
-				terrainType = "Water";			
-		}
-		else if(y > -1 && y < mapHeight && x < 2 || x > mapWidth-3)
-		{
-			terrainType = "Water";
-		}
+			if( y <=  3 || y >= mapHeight - 3 && x > 1 && x < mapWidth-2)
+			{
+				//sets the terrain type
+				if( terrainTypeSelection == 0)
+					terrainType = "Plains";
+				else if(terrainTypeSelection >=1 && terrainTypeSelection < 15)
+					terrainType = "Water";
+				else if(terrainTypeSelection >=15 && terrainTypeSelection < 21)
+					terrainType = "Tundra";								
+			}
+			else if( (y >=4 && y <= 6) || (y >=9 && y < mapHeight-3) && x > 1 && x < mapWidth-2)
+			{
+				if( terrainTypeSelection <= 1)
+					terrainType = "Desert";								
+				else if( terrainTypeSelection >= 2 && terrainTypeSelection < 4)
+					terrainType = "Jungle";								
+				else if(terrainTypeSelection >=4 && terrainTypeSelection < 9)
+					terrainType = "Plains";							
+				else if(terrainTypeSelection >=9 && terrainTypeSelection < 12)
+					terrainType = "Marshland";							
+				else if(terrainTypeSelection >=12 && terrainTypeSelection < 21)
+					terrainType = "Water";		
+			}
+			else if( y >=7 && y <9 && x > 1 && x < mapWidth-2)
+			{
+				if( terrainTypeSelection <= 3)
+					terrainType = "Plains";								
+				else if( terrainTypeSelection >= 3 && terrainTypeSelection < 6)
+					terrainType = "Marshland";						
+				else if(terrainTypeSelection >=6 && terrainTypeSelection < 8)
+					terrainType = "Desert";								
+				else if(terrainTypeSelection >=8 && terrainTypeSelection < 11)
+					terrainType = "Jungle";
+				else if(terrainTypeSelection >=11 && terrainTypeSelection < 21)
+					terrainType = "Water";			
+			}
+			else if(y > -1 && y < mapHeight && x < 2 || x > mapWidth-3)
+			{
+				terrainType = "Water";
+			}
+		}	
 
 		setTerrainFeatures(x,y);
 		setTerrainSettings();

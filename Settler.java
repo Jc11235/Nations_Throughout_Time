@@ -23,8 +23,8 @@ public class Settler extends Unit
 
 		x = spawnX;
 		y = spawnY;	
-		movement = 2;
-		maxMovement = 2;
+		movement = 4;
+		maxMovement = 4;
 		strength = 0;
 		health = 100;	
 		productionCost = 20;
