@@ -8,6 +8,7 @@ import java.util.Random;
 import java.io.Serializable;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
+import java.io.File;
 
 public class GameData implements Serializable
 {
@@ -187,7 +188,9 @@ public class GameData implements Serializable
 			{					
 				terrain[i][j] = new Terrain(j,i,mapWidth,mapHeight);
 				terrain[i][j].setTerrain(j,i,terrainOptions);
-				fog[i][j] = new ImageIcon(getClass().getResource("/Images/Terrain/fog.png"));
+				
+				//fog[i][j] = new ImageIcon(getClass().getResource("/Images/Terrain/fog.png"));
+				//fog[i][j] = terrain[i][j].getTerrainImage();
 			}
 		}
 		//sets images for the terrain

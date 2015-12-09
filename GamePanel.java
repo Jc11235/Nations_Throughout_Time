@@ -42,6 +42,9 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 	private boolean cityConstructionFocus;
 	private boolean[] move;
 
+
+	private boolean startMusic;
+
 	private String terrainOptions;
 	private String terrainType;
 	private String mapSize;
@@ -52,6 +55,8 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 	private ImageIcon mainBackground;
 
 	private GameData gameData;
+
+	private AudioPlayer audioPlayer;
 
 	public GamePanel()
 	{
@@ -73,10 +78,14 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 		cityConstructionFocus = false;
 	 	move = new boolean[4];
 
+	 	startMusic = true;
+
 		mainMenuTitle = new Font("Algerian",Font.BOLD,75);
 		mainMenuOptions = new Font("Calibri",Font.BOLD,15);
 
 	 	gameData = new GameData();
+
+	 	audioPlayer = new AudioPlayer();
 	}
 
 	//file data
@@ -179,16 +188,16 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 		{
 			for(int j = 0; j < 15; j++)
 			{				
-				if(gameData.getTerrainSpecific(j+gameData.getCurrentMapHorizontal(), i + gameData.getCurrentMapVertical()).getVisability() == true)
-				{
+				//if(gameData.getTerrainSpecific(j+gameData.getCurrentMapHorizontal(), i + gameData.getCurrentMapVertical()).getVisability() == true)
+				//{
 					gameData.getTerrainSpecific(j+gameData.getCurrentMapHorizontal(), i + gameData.getCurrentMapVertical()).getTerrainImage().paintIcon(this,g,j*75,i*75);
 					gameData.getTerrainSpecific(j+gameData.getCurrentMapHorizontal(), i + gameData.getCurrentMapVertical()).getTerrainFeaturesImage().paintIcon(this,g,j*75,i*75);
 					gameData.getTerrainSpecific(j+gameData.getCurrentMapHorizontal(), i + gameData.getCurrentMapVertical()).getTerrainResourceImage().paintIcon(this,g,j*75,i*75);
-				}
-				else
-				{
-					gameData.getFogSpecific(j+gameData.getCurrentMapHorizontal(), i + gameData.getCurrentMapVertical()).paintIcon(this,g,j*75,i*75);
-				}				
+				//}
+				//else
+				//{
+					//gameData.getFogSpecific(j+gameData.getCurrentMapHorizontal(), i + gameData.getCurrentMapVertical()).paintIcon(this,g,j*75,i*75);
+				//}				
 			}
 		}
 		//creates the physical grid
@@ -307,6 +316,12 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 	//paints main menu
 	public void paintMainMenu(Graphics g)
 	{
+		if(startMusic == true)
+		{
+			audioPlayer.playAudio("/Sounds/mainMusic.wav");
+			startMusic = false;
+		}
+		
 		mainBackground = new ImageIcon(getClass().getResource("/Images/Backgrounds/StartBackground.png"));
 		mainBackground.paintIcon(this,g,0,0);
 
@@ -319,7 +334,7 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 	//paints main menu
 	public void paintSetupScreen(Graphics g)
 	{
-		gameData.createSound("Sounds/mainMusic.wav");
+		audioPlayer.setStopPlayback(true);
 		mainBackground = new ImageIcon(getClass().getResource("/Images/Backgrounds/StartBackground.png"));
 		mainBackground.paintIcon(this,g,0,0);
 
