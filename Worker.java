@@ -16,6 +16,7 @@ public class Worker extends Unit
 		nonAccessibleTerrainFeatures = new ArrayList<String>();
 
 		nonAccessibleTerrainType.add("Water");
+		nonAccessibleTerrainType.add("Coast");
 		nonAccessibleTerrainFeatures.add("Glaciers");
 		nonAccessibleTerrainFeatures.add("Icebergs");
 
@@ -23,6 +24,8 @@ public class Worker extends Unit
 
 		x = spawnX;
 		y = spawnY;	
+		locationX = x;
+		locationY = y;
 		movement = 4;
 		maxMovement = 4;
 		strength = 1;

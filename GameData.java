@@ -189,8 +189,7 @@ public class GameData implements Serializable
 				terrain[i][j] = new Terrain(j,i,mapWidth,mapHeight);
 				terrain[i][j].setTerrain(j,i,terrainOptions);
 				
-				//fog[i][j] = new ImageIcon(getClass().getResource("/Images/Terrain/fog.png"));
-				//fog[i][j] = terrain[i][j].getTerrainImage();
+				fog[i][j] = new ImageIcon(getClass().getResource("/Images/Terrain/fog.png"));
 			}
 		}
 		//sets images for the terrain
@@ -198,7 +197,8 @@ public class GameData implements Serializable
 		{
 			for(int j = 0; j < terrain[0].length; j++)
 			{					
-				terrain[i][j].setTerrainPhysical(j,i);				
+				terrain[i][j].setTerrainPhysical(terrain,j,i,mapHeight,mapWidth);
+				terrain[i][j].setTerrainSettings();				
 			}
 		}
 	}
@@ -222,7 +222,10 @@ public class GameData implements Serializable
 			startSettlerY = r.nextInt(mapHeight);
 
 			currentMapHoriztonal = startSettlerX -5;
-			currentMapVertical = startSettlerY -7;				
+			currentMapVertical = startSettlerY -7;
+
+			currentMapHoriztonal = 0;
+			currentMapVertical = 0;				
 		}
 
 		playerUnits.add(new Settler(75*startSettlerX,75*startSettlerY));
@@ -262,9 +265,11 @@ public class GameData implements Serializable
 		int cityX = (int)Math.floor((playerCities.get(playerCities.size() - 1).getX()/75));
 		int cityY = (int)Math.floor((playerCities.get(playerCities.size() - 1).getY()/75));
 
+		cityX = (currentMapHoriztonal + cityX)%mapWidth;
+
 		for(int k = (cityY + currentMapVertical) -2; k < (cityY + currentMapVertical) + 3; k++)
 		{
-			for(int l = (cityX + currentMapHoriztonal) -2; l < (cityX + currentMapHoriztonal) + 3; l++)
+			for(int l = (cityX) -2; l < (cityX) + 3; l++)
 			{
 				if(k > -1 && k < mapHeight && l > -1 && l < mapWidth)
 				{
@@ -274,6 +279,28 @@ public class GameData implements Serializable
 			}							
 		}
 		newCitySettled = false;
+	}
+	public void checkTerrainVisibility(int mapWidth, int mapHeight)
+	{
+		for(int h = 0; h < playerUnits.size(); h++)
+		{
+			int unitX = (int)Math.floor((playerUnits.get(h).getX()/75));
+			int unitY = (int)Math.floor((playerUnits.get(h).getY()/75));
+
+			unitX = (currentMapHoriztonal + unitX)%mapWidth;
+
+			for(int k = (unitY + currentMapVertical ) -1; k < (unitY + currentMapVertical) + 2; k++)
+			{
+				for(int l = (unitX) -1; l < (unitX) + 2; l++)
+				{
+					if(k > -1 && k < mapHeight && l > -1 && l < mapWidth)
+					{						
+						if(terrain[k][l].getVisability() == false)
+							terrain[k][l].setVisability(true);													
+					}					
+				}							
+			}										
+		}		
 	}
 	//checks to see if the unit can move to the selected tile
 	public boolean checkUnitMovement(int newX,int newY)
@@ -285,15 +312,15 @@ public class GameData implements Serializable
 		{
 			for(int i = 0; i < playerUnits.get(unitFocusNumber).getNonAccessibleTerrainType().size(); i++)
 			{
-				if(terrain[newY+ currentMapVertical][newX + currentMapHoriztonal].getTerrainType() == playerUnits.get(unitFocusNumber).getNonAccessibleTerrainType().get(i))
+				if(terrain[newY+ currentMapVertical][newX].getTerrainType() == playerUnits.get(unitFocusNumber).getNonAccessibleTerrainType().get(i))
 					tempTypeCheck++;
 			}
 			for(int i = 0; i < playerUnits.get(unitFocusNumber).getNonAccessibleTerrainFeatures().size(); i++)
 			{
-				if(terrain[newY+ currentMapVertical][newX + currentMapHoriztonal].getTerrainFeatures() == playerUnits.get(unitFocusNumber).getNonAccessibleTerrainFeatures().get(i))
+				if(terrain[newY+ currentMapVertical][newX].getTerrainFeatures() == playerUnits.get(unitFocusNumber).getNonAccessibleTerrainFeatures().get(i))
 					tempFeaturesCheck++;
 			}
-			if(tempFeaturesCheck != 0  || tempTypeCheck != 0 || playerUnits.get(unitFocusNumber).getMovement() - terrain[newY+ currentMapVertical][newX + currentMapHoriztonal].getMovementCost() < 0 )
+			if(tempFeaturesCheck != 0  || tempTypeCheck != 0 || playerUnits.get(unitFocusNumber).getMovement() - terrain[newY+ currentMapVertical][newX].getMovementCost() < 0 )
 				return false;
 			else
 				return true;				
@@ -302,9 +329,10 @@ public class GameData implements Serializable
 			return false;			
 	}
 	//changes unit data during movement
-	public void updateUnitMovementData(int newX,int newY)
+	public void updateUnitMovementData(int newX,int newY,int x)
 	{
-		playerUnits.get(unitFocusNumber).setMovement(playerUnits.get(unitFocusNumber).getMovement() - terrain[newY + currentMapVertical][newX + currentMapHoriztonal].getMovementCost());
+		playerUnits.get(unitFocusNumber).setMovement(playerUnits.get(unitFocusNumber).getMovement() - terrain[newY + currentMapVertical][newX].getMovementCost());
+		//playerUnits.get(unitFocusNumber).setLocationX(x);
 	}
 	//reorganizes the buildable units by production cost least to greatest
 	public void reorganizeBuildableUnits()
@@ -377,6 +405,36 @@ public class GameData implements Serializable
 
 		//default new construction is a scout, player must physically change this
 		setDefaultCityBuild(cityNumber);		
+	}
+	//resets city coordinates based on the loop of the map
+	public void resetPlayerObjectsCoordinates(String direction,int mapWidth)
+	{
+		if(direction.equals("Right"))
+		{
+			for(int i = 0; i < playerCities.size(); i++)
+			{
+				if((playerCities.get(i).getX() - playerCities.get(i).getLocationX()== (mapWidth*75 -playerCities.get(i).getLocationX())))
+					playerCities.get(i).setX(0);		
+			}
+			for(int i = 0; i < playerUnits.size(); i++)
+			{
+				if((playerUnits.get(i).getX() - playerUnits.get(i).getLocationX() >= (mapWidth*75 -playerUnits.get(i).getLocationX())))
+					playerUnits.get(i).setX(0);		
+			}
+		}
+		else if(direction.equals("Left"))
+		{
+			for(int i = 0; i < playerCities.size(); i++)
+			{
+				if(playerCities.get(i).getX() == 0)
+					playerCities.get(i).setX(mapWidth*75);		
+			}
+			for(int i = 0; i < playerUnits.size(); i++)
+			{
+				if(playerUnits.get(i).getX() == 0)
+					playerUnits.get(i).setX(mapWidth*75);		
+			}
+		}								
 	}
 	//resets all movement for player units
 	public void resetPlayerUnitMovement()

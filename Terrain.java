@@ -226,8 +226,7 @@ public class Terrain implements Serializable
 			}
 		}	
 
-		setTerrainFeatures(x,y);
-		setTerrainSettings();
+		setTerrainFeatures(x,y);		
 	}
 	public void setTerrainFeatures(int x, int y)
 	{
@@ -696,7 +695,7 @@ public class Terrain implements Serializable
 		}
 	}
 	//paints the physical terrain layout
-	public void setTerrainPhysical(int x, int y)
+	public void setTerrainPhysical(Terrain[][] terrainBase, int x, int y, int mapHeight, int mapWidth)
 	{
 		//Terrain Types: 1. Desert 2. Jungle 3. Plains 4. Water 5. Tundra 6. Marshland
 		//Terrain Features Types: 1. Mountains 2. Hills 3. Glaciers 4. Icebergs 5. Forest
@@ -708,7 +707,32 @@ public class Terrain implements Serializable
 		else if(terrainType == "Plains")
 			terrainPicture = new ImageIcon(getClass().getResource("/Images/Terrain/plains1.png"));
 		else if(terrainType == "Water")
-			terrainPicture = new ImageIcon(getClass().getResource("/Images/Terrain/water1.png"));
+		{	
+			boolean coastLine = false;	
+
+			for(int i = y - 1; i < y + 2; i++)
+			{
+				for(int j = x - 1; j < x + 2; j++)
+				{
+					if(i > -1 && i < mapHeight && j > -1 && j < mapWidth)
+					{
+						if(!(terrainBase[i][j].getTerrainType().equals("Water")))
+						{
+							coastLine = true;
+							break;
+						}						
+					}
+				}
+			}
+			if(coastLine == true)
+			{
+				terrainPicture = new ImageIcon(getClass().getResource("/Images/Terrain/coast.png"));
+				terrainType = "Coast";
+			}
+				
+			else
+				terrainPicture = new ImageIcon(getClass().getResource("/Images/Terrain/ocean.png"));						
+		}			
 		else if(terrainType == "Tundra")
 			terrainPicture = new ImageIcon(getClass().getResource("/Images/Terrain/tundra1.png"));
 		else if(terrainType == "Marshland")
@@ -820,7 +844,7 @@ public class Terrain implements Serializable
 			health = 0;
 			science = 1;
 		}
-		else if(terrainType == "Water")
+		else if(terrainType == "Water" || terrainType == "Coast")
 		{
 			movementCost = 1;
 			food = 3;

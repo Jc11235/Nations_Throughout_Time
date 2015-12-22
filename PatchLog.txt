@@ -1,5 +1,15 @@
 # Nations_Throughout_Time
 
+Update 12/9/2015
+
+#Pre-alpha v 0.0.03
+
+#Added
+-The game now supports music.
+
+#Known Bugs
+-Music will not loop, and will play over other sounds.
+
 Update 12/7/2015
 
 #Pre-alpha v 0.0.02

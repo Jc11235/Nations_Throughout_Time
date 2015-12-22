@@ -9,7 +9,9 @@ public class Unit implements Serializable
 	public String specialAbility;
 
 	public int x;
-	public int y;	
+	public int y;
+	public int locationX;
+	public int locationY;	
 	public int movement;
 	public int maxMovement;
 	public int strength;
@@ -41,6 +43,10 @@ public class Unit implements Serializable
 	public void setY(int newY)
 	{
 		y = newY;
+	}
+	public void setLocationX(int newX)
+	{
+		locationX = newX;
 	}
 	public void setDestinationX(int newX)
 	{
@@ -88,6 +94,14 @@ public class Unit implements Serializable
 	public int getDestinationY()
 	{
 		return destinationY;
+	}
+	public int getLocationX()
+	{
+		return locationX;
+	}
+	public int getLocationY()
+	{
+		return locationY;
 	}
 	public boolean getFocus()
 	{

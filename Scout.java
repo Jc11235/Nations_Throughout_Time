@@ -17,6 +17,7 @@ public class Scout extends Unit
 		nonAccessibleTerrainFeatures = new ArrayList<String>();
 
 		nonAccessibleTerrainType.add("Water");
+		nonAccessibleTerrainType.add("Coast");
 		nonAccessibleTerrainFeatures.add("Glaciers");
 		nonAccessibleTerrainFeatures.add("Icebergs");
 
@@ -24,6 +25,8 @@ public class Scout extends Unit
 
 		x = spawnX;
 		y = spawnY;	
+		locationX = x;
+		locationY = y;
 		movement = 6;
 		maxMovement = 6;
 		strength = 2;

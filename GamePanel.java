@@ -163,41 +163,40 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 		g.setColor(Color.white);
 		g.fillRect(0,0,1600,900);
 
-		for(int h = 0; h < gameData.getPlayerUnits().size(); h++)
-		{
-			int unitX = (int)Math.floor((gameData.getPlayerUnitsSpecific(h).getX()/75));
-			int unitY = (int)Math.floor((gameData.getPlayerUnitsSpecific(h).getY()/75));
+		//checks the terrain around units
+		gameData.checkTerrainVisibility(mapWidth,mapHeight);
 
-			for(int k = (unitY + gameData.getCurrentMapVertical()) -1; k < (unitY + gameData.getCurrentMapVertical()) + 2; k++)
-			{
-				for(int l = (unitX+ gameData.getCurrentMapHorizontal()) -1; l < (unitX+gameData.getCurrentMapHorizontal()) + 2; l++)
-				{
-					if(k > -1 && k < mapHeight && l > -1 && l < mapWidth)
-					{
-						if(gameData.getTerrainSpecific(l,k).getVisability() == false)
-							gameData.getTerrainSpecific(l,k).setVisability(true);
-					}					
-				}							
-			}							
-		}
 		//checks terrain around newly settled city
 		if(gameData.getNewCitySettled() == true)
 			gameData.checkNewCityTerrain(mapWidth, mapHeight);
-		//paints the terrain		
+		//paints the terrain
+
 		for(int i = 0; i < 10;i++)
 		{
 			for(int j = 0; j < 15; j++)
-			{				
-				//if(gameData.getTerrainSpecific(j+gameData.getCurrentMapHorizontal(), i + gameData.getCurrentMapVertical()).getVisability() == true)
-				//{
-					gameData.getTerrainSpecific(j+gameData.getCurrentMapHorizontal(), i + gameData.getCurrentMapVertical()).getTerrainImage().paintIcon(this,g,j*75,i*75);
-					gameData.getTerrainSpecific(j+gameData.getCurrentMapHorizontal(), i + gameData.getCurrentMapVertical()).getTerrainFeaturesImage().paintIcon(this,g,j*75,i*75);
-					gameData.getTerrainSpecific(j+gameData.getCurrentMapHorizontal(), i + gameData.getCurrentMapVertical()).getTerrainResourceImage().paintIcon(this,g,j*75,i*75);
-				//}
-				//else
-				//{
-					//gameData.getFogSpecific(j+gameData.getCurrentMapHorizontal(), i + gameData.getCurrentMapVertical()).paintIcon(this,g,j*75,i*75);
-				//}				
+			{
+				if((gameData.getCurrentMapHorizontal()+j)%mapWidth >= 0)
+				{				
+					if(gameData.getTerrainSpecific((gameData.getCurrentMapHorizontal()+j)%mapWidth, i + gameData.getCurrentMapVertical()).getVisability() == true)
+					{					
+						gameData.getTerrainSpecific((gameData.getCurrentMapHorizontal()+j)%mapWidth, i + Math.abs((gameData.getCurrentMapVertical()%mapHeight))).getTerrainImage().paintIcon(this,g,j*75,i*75);
+						gameData.getTerrainSpecific((gameData.getCurrentMapHorizontal()+j)%mapWidth, i + Math.abs((gameData.getCurrentMapVertical()%mapHeight))).getTerrainFeaturesImage().paintIcon(this,g,j*75,i*75);
+						gameData.getTerrainSpecific((gameData.getCurrentMapHorizontal()+j)%mapWidth, i + Math.abs((gameData.getCurrentMapVertical()%mapHeight))).getTerrainResourceImage().paintIcon(this,g,j*75,i*75);
+					}
+					else
+						gameData.getFogSpecific((gameData.getCurrentMapHorizontal()+j)%mapWidth, i + gameData.getCurrentMapVertical()).paintIcon(this,g,j*75,i*75);
+				}
+				else
+				{
+					if(gameData.getTerrainSpecific((gameData.getCurrentMapHorizontal()+j)%mapWidth + mapWidth, i + gameData.getCurrentMapVertical()).getVisability() == true)
+					{
+						gameData.getTerrainSpecific((gameData.getCurrentMapHorizontal()+j)%mapWidth + mapWidth, i + Math.abs((gameData.getCurrentMapVertical()%mapHeight))).getTerrainImage().paintIcon(this,g,j*75,i*75);
+						gameData.getTerrainSpecific((gameData.getCurrentMapHorizontal()+j)%mapWidth + mapWidth, i + Math.abs((gameData.getCurrentMapVertical()%mapHeight))).getTerrainFeaturesImage().paintIcon(this,g,j*75,i*75);
+						gameData.getTerrainSpecific((gameData.getCurrentMapHorizontal()+j)%mapWidth + mapWidth, i + Math.abs((gameData.getCurrentMapVertical()%mapHeight))).getTerrainResourceImage().paintIcon(this,g,j*75,i*75);
+					}
+					else
+						gameData.getFogSpecific((gameData.getCurrentMapHorizontal()+j)%mapWidth + mapWidth, i + gameData.getCurrentMapVertical()).paintIcon(this,g,j*75,i*75);
+				}								
 			}
 		}
 		//creates the physical grid
@@ -260,8 +259,7 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 			g.fillRect(gameData.getPlayerCitiesSpecific(i).getX()+75*2 + 75*(gameData.getPlayerCitiesSpecific(i).getInfluence()-1),gameData.getPlayerCitiesSpecific(i).getY()-75*gameData.getPlayerCitiesSpecific(i).getInfluence(),10,75*3 + 75*2*(gameData.getPlayerCitiesSpecific(i).getInfluence() - 1));
 			g.fillRect(gameData.getPlayerCitiesSpecific(i).getX()-75*gameData.getPlayerCitiesSpecific(i).getInfluence(),gameData.getPlayerCitiesSpecific(i).getY()-75 - 75*(gameData.getPlayerCitiesSpecific(i).getInfluence()-1),75*3 + 75*2*(gameData.getPlayerCitiesSpecific(i).getInfluence() - 1),10);
 			g.fillRect(gameData.getPlayerCitiesSpecific(i).getX()-75*gameData.getPlayerCitiesSpecific(i).getInfluence(),gameData.getPlayerCitiesSpecific(i).getY()+75*gameData.getPlayerCitiesSpecific(i).getInfluence()+65,75*3 + 75*2*(gameData.getPlayerCitiesSpecific(i).getInfluence() - 1),10);
-		}
-		
+		}		
 	}
 	//paints the constructions menu
 	public void paintConstructionMenu(Graphics g)
@@ -313,12 +311,13 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 			}					
 		}
 	}
+	
 	//paints main menu
 	public void paintMainMenu(Graphics g)
 	{
 		if(startMusic == true)
 		{
-			audioPlayer.playAudio("/Sounds/mainMusic.wav");
+			//audioPlayer.playAudio("/Sounds/mainMusic.wav");
 			startMusic = false;
 		}
 		
@@ -334,7 +333,7 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 	//paints main menu
 	public void paintSetupScreen(Graphics g)
 	{
-		audioPlayer.setStopPlayback(true);
+		//audioPlayer.setStopPlayback(true);
 		mainBackground = new ImageIcon(getClass().getResource("/Images/Backgrounds/StartBackground.png"));
 		mainBackground.paintIcon(this,g,0,0);
 
@@ -407,16 +406,23 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 		g.draw3DRect(1175,25,200,130,true);
 		if(terrainFocus == true)
 		{
-			if(gameData.getTerrainSpecific(currentMouseMapHoriztonal+gameData.getCurrentMapHorizontal(),currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainFeatures() != "")
-				g.drawString(gameData.getTerrainSpecific(currentMouseMapHoriztonal+gameData.getCurrentMapHorizontal(),currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainType() + " , " + gameData.getTerrainSpecific(currentMouseMapHoriztonal+gameData.getCurrentMapHorizontal(),currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainFeatures(),1180,40);
-			else
-				g.drawString(gameData.getTerrainSpecific(currentMouseMapHoriztonal+gameData.getCurrentMapHorizontal(),currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainType(),1180,40);
+			int terrainX;
 
-			g.drawString(gameData.getTerrainSpecific(currentMouseMapHoriztonal+gameData.getCurrentMapHorizontal(),currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainResources(),1180,60);
-			g.drawString("Food: " + gameData.getTerrainSpecific(currentMouseMapHoriztonal+gameData.getCurrentMapHorizontal(),currentMouseMapVertical+gameData.getCurrentMapVertical()).getFood(),1180,80);
-			g.drawString("Production: " + gameData.getTerrainSpecific(currentMouseMapHoriztonal+gameData.getCurrentMapHorizontal(),currentMouseMapVertical+gameData.getCurrentMapVertical()).getProduction(),1180,100);
-			g.drawString("Health: " + gameData.getTerrainSpecific(currentMouseMapHoriztonal+gameData.getCurrentMapHorizontal(),currentMouseMapVertical+gameData.getCurrentMapVertical()).getHealth(),1180,120);
-			g.drawString("Science: " + gameData.getTerrainSpecific(currentMouseMapHoriztonal+gameData.getCurrentMapHorizontal(),currentMouseMapVertical+gameData.getCurrentMapVertical()).getScience(),1180,140);
+			if((gameData.getCurrentMapHorizontal()+ currentMouseMapHoriztonal)%mapWidth >= 0)
+				terrainX = (gameData.getCurrentMapHorizontal()+ currentMouseMapHoriztonal)%mapWidth;
+			else
+				terrainX = (gameData.getCurrentMapHorizontal()+ currentMouseMapHoriztonal)%mapWidth + mapWidth;
+
+			if(gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainFeatures() != "")
+				g.drawString(gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainType() + " , " + gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainFeatures(),1180,40);
+			else
+				g.drawString(gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainType(),1180,40);
+
+			g.drawString(gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainResources(),1180,60);
+			g.drawString("Food: " + gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getFood(),1180,80);
+			g.drawString("Production: " + gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getProduction(),1180,100);
+			g.drawString("Health: " + gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getHealth(),1180,120);
+			g.drawString("Science: " + gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getScience(),1180,140);
 		}
 			
 		//unit info	
@@ -471,6 +477,7 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 		//game info
 		g.drawString("Turn: " + gameData.getTurnNumber(),1450,50);
 	}
+	
 
 	//paints mini map
 
@@ -490,38 +497,36 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 			//moves the map around
 			if(e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A)
 			{
-				if(gameData.getCurrentMapHorizontal() - 1 >= 0)
-				{
-					gameData.setCurrentMapHorizontal(gameData.getCurrentMapHorizontal()-1);
+				gameData.setCurrentMapHorizontal(gameData.getCurrentMapHorizontal()-1);					
 
-					//units
-					for(int i = 0; i < gameData.getPlayerUnits().size(); i++)
-					{
-						gameData.getPlayerUnitsSpecific(i).setX(gameData.getPlayerUnitsSpecific(i).getX() + 75);
-					}
-					//cities
-					for(int i = 0; i < gameData.getPlayerCities().size(); i++)
-					{
-						gameData.getPlayerCitiesSpecific(i).setX(gameData.getPlayerCitiesSpecific(i).getX() + 75);
-					}	
-				}					
+				//units
+				for(int i = 0; i < gameData.getPlayerUnits().size(); i++)
+				{
+					gameData.getPlayerUnitsSpecific(i).setX(gameData.getPlayerUnitsSpecific(i).getX() + 75);
+				}
+				//cities
+				for(int i = 0; i < gameData.getPlayerCities().size(); i++)
+				{
+					gameData.getPlayerCitiesSpecific(i).setX(gameData.getPlayerCitiesSpecific(i).getX() + 75);
+				}	
+
+				gameData.resetPlayerObjectsCoordinates("Right",mapWidth);					
 			}			
 			else if(e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D)
 			{
-				if(gameData.getCurrentMapHorizontal() + 15 < mapWidth)
-				{
-					gameData.setCurrentMapHorizontal(gameData.getCurrentMapHorizontal()+1);
+				gameData.setCurrentMapHorizontal(gameData.getCurrentMapHorizontal()+1);
 
-					for(int i = 0; i < gameData.getPlayerUnits().size(); i++)
-					{
-						gameData.getPlayerUnitsSpecific(i).setX(gameData.getPlayerUnitsSpecific(i).getX() - 75);
-					}
-					//cities
-					for(int i = 0; i < gameData.getPlayerCities().size(); i++)
-					{
-						gameData.getPlayerCitiesSpecific(i).setX(gameData.getPlayerCitiesSpecific(i).getX() - 75);
-					}
-				}					
+				for(int i = 0; i < gameData.getPlayerUnits().size(); i++)
+				{
+					gameData.getPlayerUnitsSpecific(i).setX(gameData.getPlayerUnitsSpecific(i).getX() - 75);
+				}
+				//cities
+				for(int i = 0; i < gameData.getPlayerCities().size(); i++)
+				{
+					gameData.getPlayerCitiesSpecific(i).setX(gameData.getPlayerCitiesSpecific(i).getX() - 75);
+				}
+
+				gameData.resetPlayerObjectsCoordinates("Left",mapWidth);					
 			}
 			else if(e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W)
 			{
@@ -816,12 +821,16 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 			//establishes which array of the terrain the user has clicked
 			int newX = (int)Math.floor((x/75));
 			int newY = (int)Math.floor((y/75));
+
+			newX = (gameData.getCurrentMapHorizontal()+ newX)%mapWidth;
+
+			System.out.println(newX);
 		
 			//moves selected unit
 			if(gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).getMovement() > 0 && gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).getFocus() == true && gameData.checkUnitMovement(newX,newY) == true)
 			{				
-				gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).moveUnit(newX,newY);
-				gameData.updateUnitMovementData(newX,newY);
+				gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).moveUnit((int)Math.floor((x/75)),newY);
+				gameData.updateUnitMovementData(newX,newY,(int)Math.floor((x/75)));
 				gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).setFocus(false);
 			}
 		}		
@@ -845,8 +854,15 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 				int x = (int)Math.floor((tempx/75));
 				int y = (int)Math.floor((tempy/75));
 
+				int terrainX;
+
 				//establishes which array of the terrain the user has clicked
-				if(gameData.getTerrainSpecific(x + gameData.getCurrentMapHorizontal(), y + gameData.getCurrentMapVertical()).getVisability() == true)
+				if((gameData.getCurrentMapHorizontal()+ x)%mapWidth >= 0)
+					terrainX = (gameData.getCurrentMapHorizontal()+ x)%mapWidth;
+				else
+					terrainX = (gameData.getCurrentMapHorizontal()+ x)%mapWidth + mapWidth;
+
+				if(gameData.getTerrainSpecific(terrainX, y + gameData.getCurrentMapVertical()).getVisability() == true)
 				{
 					currentMouseMapHoriztonal = x;
 					currentMouseMapVertical = y;
