@@ -23,12 +23,13 @@ public class Terrain implements Serializable
 	private int production;
 	private int health;
 	private int science;
+	private int tileNumber;
 
 	private  Random r = new Random();
 
 	private ImageIcon terrainPicture;
 	private ImageIcon terrainFeaturesPicture;
-	private ImageIcon terrainResourcePicture;
+	private ImageIcon terrainResourcePicture; 
 
 	private boolean visable;
 
@@ -89,6 +90,10 @@ public class Terrain implements Serializable
 	{
 		return movementCost;
 	}
+	public int getTileNumber()
+	{
+		return tileNumber;
+	}
 ////////////////////////////////////////////////////////////////////////// setters
 	public void setVisability(boolean newVisability)
 	{
@@ -110,6 +115,10 @@ public class Terrain implements Serializable
 	{
 		science = newScience;
 	}
+	public void setTileNumber(int newTileNumber)
+	{
+		tileNumber = newTileNumber;
+	}
 	public void setTerrainType(String s)
 	{
 		terrainType = s;
@@ -125,7 +134,7 @@ public class Terrain implements Serializable
 	//creates the actual terrain layout
 	public void setTerrain(int x,int y,String terrainOption)
 	{
-		//Terrain Types: 1. Desert 2. Jungle 3. Plains 4. Water 5. Tundra 6. Marshland
+		//Terrain Types: 1. Desert 2. Jungle 3. Plains 4. Water 5. Tundra 6. Grassland
 		//Terrain Features Types: 1. Mountains 2. Hills 3. Glaciers 4. Icebergs 5. Forest
 		//Terrain Resource Types: (land resources (production)) 1. Stone 2. Iron 3. Copper 4. Tin 5. Aluminum 6. Coal 7. Uranium 8. Oil 9. Natural Gas
 		//Terrain Resource Types: (land resources (food)) 1. Cows 2. Deer 3. Pigs 4. Chickens 5. Bananas 6. Peaches 7. Apples
@@ -157,11 +166,11 @@ public class Terrain implements Serializable
 					terrainType = "Desert";								
 				else if( terrainTypeSelection >= 2 && terrainTypeSelection < 4)
 					terrainType = "Jungle";								
-				else if(terrainTypeSelection >=4 && terrainTypeSelection < 13)
+				else if(terrainTypeSelection >=4 && terrainTypeSelection < 14)
 					terrainType = "Plains";							
-				else if(terrainTypeSelection >=13 && terrainTypeSelection < 15)
-					terrainType = "Marshland";							
-				else if(terrainTypeSelection >=15 && terrainTypeSelection < 21)
+				else if(terrainTypeSelection >=14 && terrainTypeSelection < 18)
+					terrainType = "Grassland";							
+				else if(terrainTypeSelection >=18 && terrainTypeSelection < 21)
 					terrainType = "Water";		
 			}
 			else if( y >=7 && y <9 && x > 1 && x < mapWidth-2)
@@ -169,12 +178,12 @@ public class Terrain implements Serializable
 				if( terrainTypeSelection <= 4)
 					terrainType = "Plains";								
 				else if( terrainTypeSelection >= 4 && terrainTypeSelection < 6)
-					terrainType = "Marshland";						
-				else if(terrainTypeSelection >=6 && terrainTypeSelection < 10)
+					terrainType = "Grassland";						
+				else if(terrainTypeSelection >=6 && terrainTypeSelection < 14)
 					terrainType = "Desert";								
-				else if(terrainTypeSelection >=10 && terrainTypeSelection < 15)
+				else if(terrainTypeSelection >=14 && terrainTypeSelection < 18)
 					terrainType = "Jungle";
-				else if(terrainTypeSelection >=15 && terrainTypeSelection < 21)
+				else if(terrainTypeSelection >=18 && terrainTypeSelection < 21)
 					terrainType = "Water";			
 			}
 			else if(y > -1 && y < mapHeight && x < 2 || x > mapWidth-3)
@@ -200,24 +209,24 @@ public class Terrain implements Serializable
 					terrainType = "Desert";								
 				else if( terrainTypeSelection >= 2 && terrainTypeSelection < 4)
 					terrainType = "Jungle";								
-				else if(terrainTypeSelection >=4 && terrainTypeSelection < 9)
+				else if(terrainTypeSelection >=4 && terrainTypeSelection < 6)
 					terrainType = "Plains";							
-				else if(terrainTypeSelection >=9 && terrainTypeSelection < 12)
-					terrainType = "Marshland";							
-				else if(terrainTypeSelection >=12 && terrainTypeSelection < 21)
+				else if(terrainTypeSelection >=6 && terrainTypeSelection < 9)
+					terrainType = "Grassland";							
+				else if(terrainTypeSelection >=9 && terrainTypeSelection < 21)
 					terrainType = "Water";		
 			}
 			else if( y >=7 && y <9 && x > 1 && x < mapWidth-2)
 			{
 				if( terrainTypeSelection <= 3)
 					terrainType = "Plains";								
-				else if( terrainTypeSelection >= 3 && terrainTypeSelection < 6)
-					terrainType = "Marshland";						
-				else if(terrainTypeSelection >=6 && terrainTypeSelection < 8)
+				else if( terrainTypeSelection >= 3 && terrainTypeSelection < 5)
+					terrainType = "Grassland";						
+				else if(terrainTypeSelection >=5 && terrainTypeSelection < 7)
 					terrainType = "Desert";								
-				else if(terrainTypeSelection >=8 && terrainTypeSelection < 11)
+				else if(terrainTypeSelection >=7 && terrainTypeSelection < 9)
 					terrainType = "Jungle";
-				else if(terrainTypeSelection >=11 && terrainTypeSelection < 21)
+				else if(terrainTypeSelection >=9 && terrainTypeSelection < 21)
 					terrainType = "Water";			
 			}
 			else if(y > -1 && y < mapHeight && x < 2 || x > mapWidth-3)
@@ -489,7 +498,7 @@ public class Terrain implements Serializable
 					terrainResources = "";
 				}						
 			}				
-			else if(terrainType == "Marshland")
+			else if(terrainType == "Grassland")
 			{
 				terrainFeatures = "";
 				terrainResources = "";
@@ -553,7 +562,7 @@ public class Terrain implements Serializable
 					terrainResources = "";
 				}
 			}				
-			else if(terrainType == "Marshland")
+			else if(terrainType == "Grassland")
 			{
 				terrainFeatures = "";
 				terrainResources = "";
@@ -697,15 +706,15 @@ public class Terrain implements Serializable
 	//paints the physical terrain layout
 	public void setTerrainPhysical(Terrain[][] terrainBase, int x, int y, int mapHeight, int mapWidth)
 	{
-		//Terrain Types: 1. Desert 2. Jungle 3. Plains 4. Water 5. Tundra 6. Marshland
+		//Terrain Types: 1. Desert 2. Jungle 3. Plains 4. Water 5. Tundra 6. Grassland
 		//Terrain Features Types: 1. Mountains 2. Hills 3. Glaciers 4. Icebergs 5. Forest
 
 		if(terrainType == "Desert")
-			terrainPicture = new ImageIcon(getClass().getResource("/Images/Terrain/desert1.png"));
+			terrainPicture = new ImageIcon(getClass().getResource("/Images/Terrain/desert.png"));
 		else if(terrainType == "Jungle")
 			terrainPicture = new ImageIcon(getClass().getResource("/Images/Terrain/jungle1.png"));
 		else if(terrainType == "Plains")
-			terrainPicture = new ImageIcon(getClass().getResource("/Images/Terrain/plains1.png"));
+			terrainPicture = new ImageIcon(getClass().getResource("/Images/Terrain/plains.png"));
 		else if(terrainType == "Water")
 		{	
 			boolean coastLine = false;	
@@ -726,7 +735,7 @@ public class Terrain implements Serializable
 			}
 			if(coastLine == true)
 			{
-				terrainPicture = new ImageIcon(getClass().getResource("/Images/Terrain/coast.png"));
+				terrainPicture = new ImageIcon(getClass().getResource("/Images/Terrain/coast1.png"));
 				terrainType = "Coast";
 			}
 				
@@ -734,12 +743,16 @@ public class Terrain implements Serializable
 				terrainPicture = new ImageIcon(getClass().getResource("/Images/Terrain/ocean.png"));						
 		}			
 		else if(terrainType == "Tundra")
-			terrainPicture = new ImageIcon(getClass().getResource("/Images/Terrain/tundra1.png"));
-		else if(terrainType == "Marshland")
-			terrainPicture = new ImageIcon(getClass().getResource("/Images/Terrain/marsh1.png"));		
+			terrainPicture = new ImageIcon(getClass().getResource("/Images/Terrain/tundra.png"));
+		else if(terrainType == "Grassland")
+			terrainPicture = new ImageIcon(getClass().getResource("/Images/Terrain/marsh.png"));		
 
 		if(terrainFeatures == "Mountain")
-			terrainFeaturesPicture = new ImageIcon(getClass().getResource("/Images/Terrain/mountain.png"));
+		{				
+			terrainFeaturesPicture = new ImageIcon(getClass().getResource("/Images/Terrain/Mountain1.png"));
+			
+		}
+			
 		else if(terrainFeatures == "Hill")
 			terrainFeaturesPicture = new ImageIcon(getClass().getResource("/Images/Terrain/hill.png"));
 		else if(terrainFeatures == "Iceberg")
@@ -822,7 +835,7 @@ public class Terrain implements Serializable
 		//base terrain values
 		if(terrainType == "Desert")
 		{
-			movementCost = 1;
+			movementCost = 2;
 			food = 1;
 			production = 1;
 			health = -1;
@@ -860,12 +873,12 @@ public class Terrain implements Serializable
 			health = 0;
 			science = 1;
 		}
-		else if(terrainType == "Marshland")
+		else if(terrainType == "Grassland")
 		{
-			movementCost = 2;
-			food = 1;
+			movementCost = 1;
+			food = 3;
 			production = 1;
-			health = -1;
+			health = 0;
 			science = 1;
 		}
 

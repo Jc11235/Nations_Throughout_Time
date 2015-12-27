@@ -3,8 +3,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import javax.sound.sampled.*;
+import java.io.Serializable;
 
-public class AudioPlayer  
+public class AudioPlayer implements Serializable 
 {
 
   AudioFormat audioFormat;

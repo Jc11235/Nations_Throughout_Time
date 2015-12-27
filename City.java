@@ -12,6 +12,7 @@ public class City implements Serializable
 
 	public int x;
 	public int y;
+	private int cityTileNumber;
 	private int locationX;
 	private int locationY;
 	private int production = 0;
@@ -72,6 +73,10 @@ public class City implements Serializable
 	public void setY(int newY)
 	{
 		y = newY;
+	}
+	public void setCityTileNumber(int newTileNumber)
+	{
+		cityTileNumber = newTileNumber;
 	}
 	public void setInfluence(int newInfluence)
 	{
@@ -279,6 +284,10 @@ public class City implements Serializable
 	{
 		return y;
 	}
+	public int getCityTileNumber()
+	{
+		return cityTileNumber;
+	}
 	public int getLocationX()
 	{
 		return locationX;
@@ -342,6 +351,22 @@ public class City implements Serializable
 	public String getConstructionName()
 	{
 		return constructionName;
+	}
+	public ArrayList<Terrain> getWorkedTiles()
+	{
+		return workedTiles;
+	}
+	public Terrain getWorkedTilesSpecific(int index)
+	{
+		return workedTiles.get(index);
+	}
+	public ArrayList<Terrain> getTiles()
+	{
+		return cityTiles;
+	}
+	public Terrain getTilesSpecific(int index)
+	{
+		return cityTiles.get(index);
 	}
 
 	//other methods

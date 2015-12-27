@@ -188,7 +188,8 @@ public class GameData implements Serializable
 			{					
 				terrain[i][j] = new Terrain(j,i,mapWidth,mapHeight);
 				terrain[i][j].setTerrain(j,i,terrainOptions);
-				
+				terrain[i][j].setTileNumber(i*mapHeight+(j+1));
+
 				fog[i][j] = new ImageIcon(getClass().getResource("/Images/Terrain/fog.png"));
 			}
 		}
@@ -237,27 +238,189 @@ public class GameData implements Serializable
 		reorganizeBuildableUnits();
 	}
 	//goes through the process of settling a new city and removing the settler from the player unit list
-	public void settleNewCity()
+	public void settleNewCity(int mapWidth)
 	{
 		//adds new tiles for the city
-		ArrayList<Terrain> cityTiles = new ArrayList<Terrain>();
-		int unitX = (int)Math.floor((playerUnits.get(unitFocusNumber).getX() + currentMapHoriztonal)/75);
-		int unitY = (int)Math.floor((playerUnits.get(unitFocusNumber).getY() + currentMapVertical)/75);
+		ArrayList<Terrain> cityTiles = new ArrayList<Terrain>();		
+
+		int unitX = (int)Math.floor((playerUnits.get(unitFocusNumber).getX())/75);
+		unitX = (currentMapHoriztonal+ unitX)%mapWidth;
+
+		int unitY = (int)Math.floor((playerUnits.get(unitFocusNumber).getY())/75) + currentMapVertical;
+		
 		for(int k = unitY -1; k < unitY + 2; k++)
 		{
 			for(int j = unitX -1; j < unitX + 2; j++)
 			{
 				cityTiles.add(terrain[k][j]);
 			}							
-		}						
+		}
+
 		//adds new city
 		playerCities.add(new City(playerUnits.get(unitFocusNumber).getX(),playerUnits.get(unitFocusNumber).getY(),cityTiles));
+		//adds city tile number from terrain
+		playerCities.get(playerCities.size()-1).setCityTileNumber(terrain[unitY][unitX].getTileNumber());
 		//adds a turn counter for construction into the build item list
 		setDefaultCityBuild(playerCities.size()-1);
 		//removes settler
 		playerUnits.remove(unitFocusNumber);
+		//sets the city borders
+		setCityBorders();
+
 		unitFocusNumber = -1;
 		newCitySettled = true;		
+	}
+	//checks the city borders and sets them, keep this, but it probably wont be implemented
+	public ArrayList<ArrayList<Integer>> setCityBorders()
+	{
+		ArrayList<Integer> tempCityBoundaryTiles = new ArrayList<Integer>();
+		//ArrayList<Object> cityBoundaryTiles = new ArrayList<Objectb>();
+		ArrayList<Integer> tempCityBoundaryX = new ArrayList<Integer>();
+		ArrayList<Integer> tempCityBoundaryY = new ArrayList<Integer>();
+
+		ArrayList<ArrayList<Integer>> tempCityBoundaryTop = new ArrayList<ArrayList<Integer>>();
+		ArrayList<ArrayList<Integer>> tempCityBoundaryRight = new ArrayList<ArrayList<Integer>>();
+		ArrayList<ArrayList<Integer>> tempCityBoundaryLeft = new ArrayList<ArrayList<Integer>>();
+		ArrayList<ArrayList<Integer>>tempCityBoundaryBottom = new ArrayList<ArrayList<Integer>>();
+
+		ArrayList<ArrayList<Integer>> polygonXY = new ArrayList<ArrayList<Integer>>();
+
+		for(int i = 0; i < playerCities.size(); i++)
+		{
+			int cctn = playerCities.get(i).getCityTileNumber(); //tile number of the city itself
+
+			for(int j = 0; j < playerCities.get(i).getTiles().size(); j++)
+			{
+				int tempTN = playerCities.get(i).getTilesSpecific(j).getTileNumber(); //tile numbers of all worked city tiles
+
+				tempCityBoundaryTiles.add(playerCities.get(i).getTilesSpecific(j).getTileNumber());
+
+				//removes non outer borders
+				if(tempTN == cctn)
+					tempCityBoundaryTiles.remove(tempCityBoundaryTiles.size()-1);
+				for(int k = 0; k <  playerCities.get(i).getInfluence(); k++)
+				{
+					if(tempCityBoundaryTiles.get(tempCityBoundaryTiles.size()-1) >= cctn - k*25 - k && tempCityBoundaryTiles.get(tempCityBoundaryTiles.size()-1) <= cctn - k*25 + k)
+						tempCityBoundaryTiles.remove(tempCityBoundaryTiles.size()-1);
+					else if(tempCityBoundaryTiles.get(tempCityBoundaryTiles.size()-1) >= cctn + k*25 - k && tempCityBoundaryTiles.get(tempCityBoundaryTiles.size()-1) <= cctn + k*25 + k)
+						tempCityBoundaryTiles.remove(tempCityBoundaryTiles.size()-1);
+					else if(tempCityBoundaryTiles.get(tempCityBoundaryTiles.size()-1) >= cctn - k && tempCityBoundaryTiles.get(tempCityBoundaryTiles.size()-1) <= cctn + k)
+						tempCityBoundaryTiles.remove(tempCityBoundaryTiles.size()-1);
+				}				
+			}
+
+			int tempHeight = playerCities.get(i).getInfluence() - 1;
+			//assigns X and Y values for border tiles around the cities
+			for(int k = 0; k < tempCityBoundaryTiles.size(); k++)
+			{
+				//top row
+				if(k < 2*playerCities.get(i).getInfluence() + 1)
+				{
+					//before middle
+					if(k <= playerCities.get(i).getInfluence() + 1)
+						tempCityBoundaryX.add(playerCities.get(i).getX() - (playerCities.get(i).getInfluence()-k)*75);
+					//after middle
+					else
+						tempCityBoundaryX.add(playerCities.get(i).getX() + Math.abs((playerCities.get(i).getInfluence()-k))*75);	
+
+					tempCityBoundaryY.add(playerCities.get(i).getY() - playerCities.get(i).getInfluence()*75);
+
+					if(tempCityBoundaryTop.size() == 0)
+					{
+						tempCityBoundaryTop.add(tempCityBoundaryX);
+						tempCityBoundaryTop.add(tempCityBoundaryX);
+					}
+					else
+					{
+						tempCityBoundaryTop.set(0,tempCityBoundaryX);
+						tempCityBoundaryTop.set(1,tempCityBoundaryX);
+					}
+
+
+							
+				}
+				//upper right has 2 points in the polygon
+				else if(k == 2*playerCities.get(i).getInfluence() + 1)
+				{
+					tempCityBoundaryX.add(playerCities.get(i).getX() + Math.abs((playerCities.get(i).getInfluence()-k))*75);
+					tempCityBoundaryX.add(playerCities.get(i).getX() + Math.abs((playerCities.get(i).getInfluence()-(k+1)))*75);
+
+					//this is added twice one for each point
+					tempCityBoundaryY.add(playerCities.get(i).getY() - playerCities.get(i).getInfluence()*75);
+					tempCityBoundaryY.add(playerCities.get(i).getY() - playerCities.get(i).getInfluence()*75);
+				}
+				//sides
+				else if(k > 2*playerCities.get(i).getInfluence() + 1 && k < 6*playerCities.get(i).getInfluence())
+				{
+					//left
+					if(k%2 == 0)
+						tempCityBoundaryX.add(playerCities.get(i).getX() - playerCities.get(i).getInfluence()*75);						
+					//right
+					else
+					{
+						tempCityBoundaryX.add(playerCities.get(i).getX() + playerCities.get(i).getInfluence()*75);
+						tempHeight--;
+					}						
+					
+					tempCityBoundaryY.add(playerCities.get(i).getY() - tempHeight*75);
+				}
+				//bottom row
+				else if(k >= 6*playerCities.get(i).getInfluence() && k < tempCityBoundaryTiles.size() - 1)
+				{
+					int tempX = (k % tempCityBoundaryTiles.size()) % 5;
+
+					if( tempX <= playerCities.get(i).getInfluence() + 1)
+						tempCityBoundaryX.add(playerCities.get(i).getX() - (playerCities.get(i).getInfluence()-tempX)*75);	
+					else
+						tempCityBoundaryX.add(playerCities.get(i).getX() + Math.abs((playerCities.get(i).getInfluence()+tempX))*75);
+
+					tempCityBoundaryY.add(playerCities.get(i).getY() + playerCities.get(i).getInfluence()*75);	
+				}
+				//lower right has 2 points
+				else if(k == tempCityBoundaryTiles.size()-1)
+				{
+					int tempX = (k % tempCityBoundaryTiles.size()) % 5;
+
+					tempCityBoundaryX.add(playerCities.get(i).getX() + Math.abs((playerCities.get(i).getInfluence()-tempX))*75);
+					tempCityBoundaryX.add(playerCities.get(i).getX() + Math.abs((playerCities.get(i).getInfluence()-(tempX+1)))*75);
+
+					tempCityBoundaryY.add(playerCities.get(i).getY() + playerCities.get(i).getInfluence()*75);	
+					tempCityBoundaryY.add(playerCities.get(i).getY() + playerCities.get(i).getInfluence()*75);	
+				}
+			}		
+			polygonXY.add(tempCityBoundaryX);
+			polygonXY.add(tempCityBoundaryY);						
+		}
+			//clears values for the next city
+			//tempCityBoundaryTiles.clear();
+			//tempCityBoundaryX.clear();
+			//tempCityBoundaryY.clear();
+
+		//System.out.println("ps: " + polygonXY.size());
+		for(int j = 0; j < polygonXY.get(0).size(); j++)
+		{
+			//System.out.println("x: " + polygonXY.get(0).get(j) + " y: " + polygonXY.get(1).get(j));
+		}
+		
+		//removes duplicate tiles
+		/*for(int i = 0; i < cityBoundaryTiles.size(); i++)
+		{
+			for(int j = 1; j < cityBoundaryTiles.size(); j++)
+			{
+				int limit;
+				if(cityBoundaryTiles.get(j).size() > cityBoundaryTiles.get(i).size())
+					limit = cityBoundaryTiles.get(i).size();
+				else
+					limit = cityBoundaryTiles.get(j).size();
+				for(int k = 0; k < limit; k++)
+				{
+					if(j != i && cityBoundaryTiles.get(i).get(k) == cityBoundaryTiles.get(j).get(k))
+						cityBoundaryTiles.get(i).remove(k);
+				}				
+			}			
+		}
+		*/
+		return polygonXY;
 	}
 	//checks the terrain around a newly settled city to eliminate fog where applicable
 	public void checkNewCityTerrain(int mapWidth, int mapHeight)
@@ -333,6 +496,20 @@ public class GameData implements Serializable
 	{
 		playerUnits.get(unitFocusNumber).setMovement(playerUnits.get(unitFocusNumber).getMovement() - terrain[newY + currentMapVertical][newX].getMovementCost());
 		//playerUnits.get(unitFocusNumber).setLocationX(x);
+	}
+	//changes all units x and y
+	public void updateAllMovementData(int newX, int newY)
+	{
+		for(int i = 0; i < playerUnits.size(); i++)
+		{
+			playerUnits.get(i).setX(playerUnits.get(i).getX() + newX);
+			playerUnits.get(i).setY(playerUnits.get(i).getY() + newY);
+		}
+		for(int i = 0; i < playerCities.size(); i++)
+		{
+			playerCities.get(i).setX(playerCities.get(i).getX() + newX);
+			playerCities.get(i).setY(playerCities.get(i).getY() + newY);
+		}
 	}
 	//reorganizes the buildable units by production cost least to greatest
 	public void reorganizeBuildableUnits()

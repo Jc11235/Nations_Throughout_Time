@@ -20,17 +20,23 @@ import java.awt.Font;
 import java.io.Serializable;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
+import java.awt.Polygon;
 
 
 public class GamePanel extends JPanel  implements ActionListener,KeyListener,MouseListener,MouseMotionListener,Serializable
 {
 	//globals
-	private  int mapHeight;
-	private  int mapWidth;
-	
-	private  int currentMouseMapHoriztonal;
-	private  int currentMouseMapVertical;	
-	private  int currentBuildOptionsVertical; 
+	private int mapHeight;
+	private int mapWidth;
+	private int mapX;
+	private int mapY;
+	private int miniMapY;
+	private int miniMapX;
+	private int minimapWidth;
+	private int minimapHeight;	
+	private int currentMouseMapHoriztonal;
+	private int currentMouseMapVertical;	
+	private int currentBuildOptionsVertical; 
 
 	private boolean mainMenu;
 	private boolean newGameSetup;
@@ -42,8 +48,8 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 	private boolean cityConstructionFocus;
 	private boolean[] move;
 
-
 	private boolean startMusic;
+	private boolean pauseMenu;
 
 	private String terrainOptions;
 	private String terrainType;
@@ -58,13 +64,21 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 
 	private AudioPlayer audioPlayer;
 
-	public GamePanel()
+	private GameWindow gameWindow;
+
+	public GamePanel(GameWindow newGameWindow)
 	{
 		mapHeight = 0;
-	 	mapWidth= 0;		
+	 	mapWidth= 0;	
+	 	mapX = 21;
+	 	mapY = 12;	
 	 	currentMouseMapHoriztonal= 0;
 	 	currentMouseMapVertical= 0;
 	 	currentBuildOptionsVertical = 0;
+	 	miniMapY = 500;
+		miniMapX = 1225;
+		minimapWidth = 350;
+		minimapHeight = 350;
 
 	 	mapSize = "None";
 	 	terrainType = "None";
@@ -79,6 +93,7 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 	 	move = new boolean[4];
 
 	 	startMusic = true;
+	 	pauseMenu = false;
 
 		mainMenuTitle = new Font("Algerian",Font.BOLD,75);
 		mainMenuOptions = new Font("Calibri",Font.BOLD,15);
@@ -86,6 +101,8 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 	 	gameData = new GameData();
 
 	 	audioPlayer = new AudioPlayer();
+
+	 	gameWindow = newGameWindow;
 	}
 
 	//file data
@@ -154,6 +171,7 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 			paintCities(g);
 			paintUnits(g);
 			paintHud(g);
+			paintFileMenu(g);
 			paintConstructionMenu(g);						
 		}						
 	}	
@@ -170,10 +188,9 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 		if(gameData.getNewCitySettled() == true)
 			gameData.checkNewCityTerrain(mapWidth, mapHeight);
 		//paints the terrain
-
-		for(int i = 0; i < 10;i++)
+		for(int i = 0; i < mapY;i++)
 		{
-			for(int j = 0; j < 15; j++)
+			for(int j = 0; j < mapX; j++)
 			{
 				if((gameData.getCurrentMapHorizontal()+j)%mapWidth >= 0)
 				{				
@@ -184,7 +201,7 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 						gameData.getTerrainSpecific((gameData.getCurrentMapHorizontal()+j)%mapWidth, i + Math.abs((gameData.getCurrentMapVertical()%mapHeight))).getTerrainResourceImage().paintIcon(this,g,j*75,i*75);
 					}
 					else
-						gameData.getFogSpecific((gameData.getCurrentMapHorizontal()+j)%mapWidth, i + gameData.getCurrentMapVertical()).paintIcon(this,g,j*75,i*75);
+						gameData.getFogSpecific((gameData.getCurrentMapHorizontal()+j)%mapWidth, i + Math.abs((gameData.getCurrentMapVertical()%mapHeight))).paintIcon(this,g,j*75,i*75);
 				}
 				else
 				{
@@ -195,18 +212,18 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 						gameData.getTerrainSpecific((gameData.getCurrentMapHorizontal()+j)%mapWidth + mapWidth, i + Math.abs((gameData.getCurrentMapVertical()%mapHeight))).getTerrainResourceImage().paintIcon(this,g,j*75,i*75);
 					}
 					else
-						gameData.getFogSpecific((gameData.getCurrentMapHorizontal()+j)%mapWidth + mapWidth, i + gameData.getCurrentMapVertical()).paintIcon(this,g,j*75,i*75);
+						gameData.getFogSpecific((gameData.getCurrentMapHorizontal()+j)%mapWidth + mapWidth, i + Math.abs((gameData.getCurrentMapVertical()%mapHeight))).paintIcon(this,g,j*75,i*75);
 				}								
 			}
 		}
 		//creates the physical grid
-		for(int i = 0; i < 16; i++)
+		for(int i = 0; i < 21; i++)
 		{
-			g.fillRect(i*75,0,1,750);
+			g.fillRect(i*75,0,1,900);
 		}
-		for(int i = 0; i < 11; i++)
+		for(int i = 0; i < 21; i++)
 		{
-			g.fillRect(0,i*75,1125,1);
+			g.fillRect(0,i*75,1600,1);
 		}
 	}
 
@@ -216,7 +233,7 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 		for(int i = 0; i < gameData.getPlayerUnits().size(); i++)
 		{
 			//paints the unit
-			if(gameData.getPlayerUnitsSpecific(i).getX() >= 0 && gameData.getPlayerUnitsSpecific(i).getX() <= 1125 && gameData.getPlayerUnitsSpecific(i).getY() >= 0 && gameData.getPlayerUnitsSpecific(i).getY() < 750)
+			if(gameData.getPlayerUnitsSpecific(i).getX() >= 0 && gameData.getPlayerUnitsSpecific(i).getX() <= 1600 && gameData.getPlayerUnitsSpecific(i).getY() >= 0 && gameData.getPlayerUnitsSpecific(i).getY() < 900)
 				gameData.getPlayerUnitsSpecific(i).getUnitImage().paintIcon(this,g,gameData.getPlayerUnitsSpecific(i).getX(),gameData.getPlayerUnitsSpecific(i).getY());
 
 			//if a unit has been clicked on
@@ -231,7 +248,7 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 					//settle a city	
 					if(gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).getName().equals("Settler"))
 					{
-						gameData.settleNewCity();
+						gameData.settleNewCity(mapWidth);
 						gameData.getPlayerCitiesSpecific(gameData.getPlayerCities().size()-1).setCityName(JOptionPane.showInputDialog(this,"City Settled!" + "\n" + "Choose your city's name:"));
 					}	
 				}								
@@ -241,24 +258,38 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 
 	//paints cities
 	public void paintCities(Graphics g)
-	{
-		g.setColor(Color.blue);
+	{		
 		for(int i = 0; i < gameData.getPlayerCities().size(); i++)
 		{
+			g.setColor(Color.blue);
 			//paints cities
 			gameData.getPlayerCitiesSpecific(i).getCityImage().paintIcon(this,g,gameData.getPlayerCitiesSpecific(i).getX(),gameData.getPlayerCitiesSpecific(i).getY());	
 			Font population = new Font("Impact",Font.BOLD,25);
 			g.setFont(population);
 			g.drawString("" + gameData.getPlayerCitiesSpecific(i).getPopulation(),gameData.getPlayerCitiesSpecific(i).getX()+5,gameData.getPlayerCitiesSpecific(i).getY()+25);
 
-			//city border
-			int cityX = gameData.getPlayerCitiesSpecific(i).getX();
-			int cityY = gameData.getPlayerCitiesSpecific(i).getY();
+			//draws the territory tiles			
+			int cityTile = gameData.getPlayerCitiesSpecific(i).getCityTileNumber();
 
-			g.fillRect(cityX-75*gameData.getPlayerCitiesSpecific(i).getInfluence(),gameData.getPlayerCitiesSpecific(i).getY()-75 - 75*(gameData.getPlayerCitiesSpecific(i).getInfluence()-1),10,75*3 + 75*2*(gameData.getPlayerCitiesSpecific(i).getInfluence() - 1));	
-			g.fillRect(gameData.getPlayerCitiesSpecific(i).getX()+75*2 + 75*(gameData.getPlayerCitiesSpecific(i).getInfluence()-1),gameData.getPlayerCitiesSpecific(i).getY()-75*gameData.getPlayerCitiesSpecific(i).getInfluence(),10,75*3 + 75*2*(gameData.getPlayerCitiesSpecific(i).getInfluence() - 1));
-			g.fillRect(gameData.getPlayerCitiesSpecific(i).getX()-75*gameData.getPlayerCitiesSpecific(i).getInfluence(),gameData.getPlayerCitiesSpecific(i).getY()-75 - 75*(gameData.getPlayerCitiesSpecific(i).getInfluence()-1),75*3 + 75*2*(gameData.getPlayerCitiesSpecific(i).getInfluence() - 1),10);
-			g.fillRect(gameData.getPlayerCitiesSpecific(i).getX()-75*gameData.getPlayerCitiesSpecific(i).getInfluence(),gameData.getPlayerCitiesSpecific(i).getY()+75*gameData.getPlayerCitiesSpecific(i).getInfluence()+65,75*3 + 75*2*(gameData.getPlayerCitiesSpecific(i).getInfluence() - 1),10);
+			int cityY = gameData.getPlayerCitiesSpecific(i).getY();
+			int cityX = gameData.getPlayerCitiesSpecific(i).getX();
+
+			
+			int distanceY = gameData.getPlayerCitiesSpecific(i).getInfluence();
+			for(int j = 0; j < gameData.getPlayerCitiesSpecific(i).getInfluence()*2 + 1; j++)
+			{
+				int distanceX = gameData.getPlayerCitiesSpecific(i).getInfluence();
+				
+				for(int k = 0; k < gameData.getPlayerCitiesSpecific(i).getInfluence()*2 + 1; k++)
+				{
+					g.setColor(Color.red);					
+
+					g.drawRect(cityX -  (distanceX*75), cityY - (distanceY*75), 75, 75);
+
+					distanceX--;
+				}
+				distanceY--;				
+			}
 		}		
 	}
 	//paints the constructions menu
@@ -327,6 +358,17 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 		g.setFont(mainMenuTitle);
 		g.setColor(Color.white);
 		g.drawString("Nations Throughout Time",200,100);
+
+		//menu options
+		g.draw3DRect(700,400,100,50,true);
+		g.draw3DRect(700,460,100,50,true);
+		g.draw3DRect(700,520,100,50,true);
+
+		Font mainMenuOptionsI = new Font("Calibri",Font.BOLD,18);
+		g.setFont(mainMenuOptionsI);
+		g.drawString("New Game",710,425);
+		g.drawString("Load Game",710,485);
+		g.drawString("Exit",710,545);
 	}
 
 
@@ -390,22 +432,30 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 
 	//paints the informations screen
 	public void paintHud(Graphics g)
-	{
-		g.setColor(Color.gray);
-		g.fillRect(1150,0,400,750);
+	{		
 		g.setFont(mainMenuOptions);
 
-		//player info
-
-		//next turn
-		g.setColor(Color.white);
-		g.draw3DRect(1450,60,75,40,true);
-		g.drawString("Next Turn",1460,80);
-		//tile info
+		//player info	
 		
-		g.draw3DRect(1175,25,200,130,true);
+		//game info
+		g.setColor(Color.gray);
+		g.fillRect(1120,760,85,80);
+
+		g.setColor(Color.white);
+		g.draw3DRect(1125,775,75,40,true);
+		g.drawString("Next Turn",1130,795);
+		
+		
 		if(terrainFocus == true)
 		{
+			//tile info
+			int terrainInfoX = 1000;
+			g.setColor(Color.gray);
+			g.fillRect(terrainInfoX,600,200,130);
+
+			g.setColor(Color.white);
+			g.draw3DRect(terrainInfoX,600,200,130,true);
+
 			int terrainX;
 
 			if((gameData.getCurrentMapHorizontal()+ currentMouseMapHoriztonal)%mapWidth >= 0)
@@ -414,42 +464,61 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 				terrainX = (gameData.getCurrentMapHorizontal()+ currentMouseMapHoriztonal)%mapWidth + mapWidth;
 
 			if(gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainFeatures() != "")
-				g.drawString(gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainType() + " , " + gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainFeatures(),1180,40);
+				g.drawString(gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainType() + " , " + gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainFeatures(),terrainInfoX + 10,620);
 			else
-				g.drawString(gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainType(),1180,40);
+				g.drawString(gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainType(),terrainInfoX + 10,620);
 
-			g.drawString(gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainResources(),1180,60);
-			g.drawString("Food: " + gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getFood(),1180,80);
-			g.drawString("Production: " + gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getProduction(),1180,100);
-			g.drawString("Health: " + gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getHealth(),1180,120);
-			g.drawString("Science: " + gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getScience(),1180,140);
+			g.drawString(gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getTerrainResources(),terrainInfoX + 10,640);
+			g.drawString("Food: " + gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getFood(),terrainInfoX + 10,660);
+			g.drawString("Production: " + gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getProduction(),terrainInfoX + 10,680);
+			g.drawString("Health: " + gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getHealth(),terrainInfoX + 10,700);
+			g.drawString("Science: " + gameData.getTerrainSpecific(terrainX,currentMouseMapVertical+gameData.getCurrentMapVertical()).getScience(),terrainInfoX + 10,720);
+
 		}
 			
-		//unit info	
-		g.draw3DRect(1175,160,200,100,true);
-		
+		//unit info		
 		if(gameData.getUnitFocusNumber() > -1)
 		{
-			g.draw3DRect(1380,160,50,25,true);
-			g.draw3DRect(1380,190,50,25,true);
-			g.draw3DRect(1380,220,50,25,true);
+			g.setColor(Color.gray);
+			g.fillRect(10,650,200,175);
+			g.draw3DRect(10,650,200,175,true);	
 
-			g.drawString(gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).getName(), 1180,180);
-			g.drawString("Strength: " + gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).getStrength(), 1180,200);	
-			g.drawString("Health: " + gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).getHealth(), 1180,220);	
-			g.drawString("Movement: " + gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).getMovement(), 1180,240);	
+			g.fillRect(220,650,50,25);
+			g.fillRect(220,680,50,25);
+			g.fillRect(220,680,50,25);
+
+			g.setColor(Color.white);
+			g.draw3DRect(220,650,50,25,true);
+			g.draw3DRect(220,680,50,25,true);
+			g.draw3DRect(220,680,50,25,true);
+
+			g.drawString(gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).getName(), 20,665);
+			g.drawString("Strength: " + gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).getStrength(), 20,685);	
+			g.drawString("Health: " + gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).getHealth(), 20,705);	
+			g.drawString("Movement: " + gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).getMovement(), 20,725);	
 
 			if(gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).getSpecialAbility() != "")
 			{
-				g.drawString(gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).getSpecialAbility(),1385,180);
+				g.drawString(gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).getSpecialAbility(),225,665);
 			}		
 		}
 
-		//city info
-		g.draw3DRect(1175,265,200,200,true);		
+		//city info				
 
 		if(gameData.getCityFocusNumber() > -1)
 		{
+			g.setColor(Color.gray);
+			g.fillRect(1175,265,200,200);
+			g.fillRect(1380,265,110,25);
+			g.fillRect(1380,295,110,25);
+			g.fillRect(1380,325,110,25);
+			g.fillRect(1380,355,110,25);
+			g.fillRect(1380,385,110,25);
+			g.fillRect(1380,415,110,25);
+			g.fillRect(1380,445,110,25);
+
+			g.draw3DRect(1175,265,200,200,true);
+
 			g.draw3DRect(1380,265,110,25,true);
 			g.draw3DRect(1380,295,110,25,true);
 			g.draw3DRect(1380,325,110,25,true);
@@ -458,6 +527,7 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 			g.draw3DRect(1380,415,110,25,true);
 			g.draw3DRect(1380,445,110,25,true);
 
+			g.setColor(Color.white);
 			g.drawString("Production Focus",1382,280);
 			g.drawString("Food Focus",1382,310);
 			g.drawString("Health Focus",1382,340);
@@ -472,16 +542,108 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 			g.drawString("Health: " + gameData.getPlayerCitiesSpecific(gameData.getCityFocusNumber()).getHealth(),1180,400);
 			if(gameData.getPlayerBuildUnitQueue().size() > 0)
 				g.drawString("Building: " + gameData.getPlayerBuildUnitQueueSpecific(0).getName() + " in " + gameData.getPlayerCitiesSpecific(gameData.getCityFocusNumber()).getTurnsToBuild(), 1180, 420);	
+		}		
+
+		//minimap
+		g.drawRect(miniMapX,miniMapY,minimapWidth,minimapHeight);
+		//minimap terrain
+		for(int i = 0; i < mapWidth; i++)
+		{			
+			for(int j = 0; j < mapHeight; j++)
+			{
+				//base terrain
+				if(gameData.getTerrainSpecific(i,j).getVisability() == false)
+					g.setColor(Color.black);					
+				else
+				{
+					//if(!(gameData.getTerrainSpecific(i,j).getTerrainType().equals("Water") || gameData.getTerrainSpecific(i,j).getTerrainType().equals("Coast")))
+						//g.setColor(new Color(0, 102, 0));
+					if(gameData.getTerrainSpecific(i,j).getTerrainType().equals("Desert"))
+						g.setColor(Color.yellow);
+					else if(gameData.getTerrainSpecific(i,j).getTerrainType().equals("Grassland"))
+						g.setColor(new Color(0, 102, 0));
+					else if(gameData.getTerrainSpecific(i,j).getTerrainType().equals("Plains"))
+						g.setColor(Color.orange);
+					else if(gameData.getTerrainSpecific(i,j).getTerrainType().equals("Tundra"))
+						g.setColor(Color.gray);
+					else if(gameData.getTerrainSpecific(i,j).getTerrainType().equals("Water"))
+						g.setColor(new Color(0, 102, 204));
+					else if(gameData.getTerrainSpecific(i,j).getTerrainType().equals("Coast"))
+						g.setColor(new Color(0, 204, 204));					
+											
+				}
+				g.fillRect(miniMapX + i*(minimapWidth/mapWidth), miniMapY + j*(minimapHeight/mapHeight), minimapWidth/mapWidth, minimapHeight/mapHeight);					
+			}			
+		}
+		//minimap cities
+
+		for(int i = 0; i < gameData.getPlayerCities().size(); i++)
+		{
+			int cityTile = gameData.getPlayerCitiesSpecific(i).getCityTileNumber();
+
+			int cityY = cityTile/mapHeight;
+			int cityX = cityTile%mapWidth-1;
+
+			//draws the territory tiles
+			int distanceY = gameData.getPlayerCitiesSpecific(i).getInfluence();
+			for(int j = 0; j < gameData.getPlayerCitiesSpecific(i).getInfluence()*2 + 1; j++)
+			{
+				int distanceX = gameData.getPlayerCitiesSpecific(i).getInfluence();
+				
+				for(int k = 0; k < gameData.getPlayerCitiesSpecific(i).getInfluence()*2 + 1; k++)
+				{
+					g.setColor(Color.red);					
+
+					g.fillRect(miniMapX + (cityX -  distanceX)*(minimapWidth/mapWidth), miniMapY + (cityY - distanceY)*(minimapHeight/mapHeight) , minimapWidth/mapWidth, minimapHeight/mapHeight);
+
+					distanceX--;
+				}
+				distanceY--;				
+			}
+
+			//draw the city dot			
+			g.setColor(Color.white);			
+
+			g.fillOval(miniMapX + cityX*(minimapWidth/mapWidth), miniMapY + cityY*(minimapHeight/mapHeight), minimapWidth/mapWidth, minimapHeight/mapHeight);
 		}
 
-		//game info
-		g.drawString("Turn: " + gameData.getTurnNumber(),1450,50);
+		g.setColor(Color.black);	
+		//creates the physical grid
+		for(int i = 0; i < mapWidth; i++)
+		{
+			g.fillRect(miniMapX + i*(minimapWidth/mapWidth),miniMapY,1,minimapHeight);
+			g.fillRect(miniMapX,miniMapY + i*(minimapHeight/mapWidth),minimapWidth,1);
+		}
 	}
-	
+	//file menu
+	public void paintFileMenu(Graphics g)
+	{
+		g.setColor(Color.black);
+		g.fillRect(0,0,1600,30);
 
-	//paints mini map
+		g.setColor(Color.white);
+		g.draw3DRect(1500,5,50,20,true);
+		g.drawString("File",1510,20);
+		g.drawString("Turn: " + gameData.getTurnNumber(),1450,20);
 
+		if(pauseMenu == true)
+		{
+			int pauseMenuX = 700;
+			g.setColor(Color.black);
+			g.fillRect(pauseMenuX,400,200,200);
 
+			g.setColor(Color.white);
+			g.draw3DRect(pauseMenuX,400,200,50,true);
+			g.draw3DRect(pauseMenuX,450,200,50,true);
+			g.draw3DRect(pauseMenuX,500,200,50,true);
+			g.draw3DRect(pauseMenuX,550,200,50,true);	
+
+			g.drawString("Save",pauseMenuX + 50,425);
+			g.drawString("Load",pauseMenuX + 50,475);
+			g.drawString("Main Menu",pauseMenuX + 50,525);
+			g.drawString("Exit to Windows",pauseMenuX + 50,575);
+		}
+	}
 	//other methods	
 	
 	@Override
@@ -492,7 +654,7 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 	}
 	public void keyPressed(KeyEvent e)
 	{
-		if(mapView == true && cityConstructionFocus == false)
+		if(mapView == true && cityConstructionFocus == false && pauseMenu == false)
 		{
 			//moves the map around
 			if(e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A)
@@ -547,7 +709,7 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 			}		
 			else if(e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S)
 			{
-				if(gameData.getCurrentMapVertical() + 10  < mapHeight)
+				if(gameData.getCurrentMapVertical() + 12  < mapHeight)
 				{
 					for(int i = 0; i < gameData.getPlayerUnits().size(); i++)
 					{
@@ -575,6 +737,29 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 					currentBuildOptionsVertical--;
 			}
 		}
+		//ESC
+		if(e.getKeyCode() == KeyEvent.VK_ESCAPE)
+		{
+			//pause menu
+			if(pauseMenu == true && gameData.getCityFocusNumber() < 0)
+				pauseMenu = false;
+			else if(pauseMenu == false && gameData.getCityFocusNumber() < 0)
+				pauseMenu = true;
+			//city deselect
+			if(mapView == true)
+			{
+				if(gameData.getCityFocusNumber() > -1)
+					gameData.setCityFocusNumber(-1);												
+			}			
+			//goes back to main menu if aren't in game yet		
+			if(newGameSetup = true)
+			{
+				newGameSetup = false;
+				mapSizeOptions = false;
+				terrainOptionsAction = false;
+				mainMenu = true;
+			}	
+		}		
 	}
 	public void keyReleased(KeyEvent e)
 	{
@@ -588,11 +773,12 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 	public void mouseClicked(MouseEvent e)
 	{
 		//map sizes
-		if(newGameSetup == true && mapSizeOptions == true)
+		if(newGameSetup == true && mapSizeOptions == true && pauseMenu == false)
 		{
 			//small map
 			if(e.getX() > 725 && e.getX() < 825 && e.getY() > 75 & e.getY() < 125)
-			{				
+			{
+				audioPlayer.playAudio("/Sounds/primaryMouseClick.wav");				
 				mapSize = "Small";
 				mapWidth = 25;
 				mapHeight = 25;
@@ -601,6 +787,7 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 			//medium map
 			if(e.getX() > 725 && e.getX() < 825 && e.getY() > 126 & e.getY() < 175)
 			{
+				audioPlayer.playAudio("/Sounds/primaryMouseClick.wav");
 				mapSize = "Medium";
 				mapWidth = 50;
 				mapHeight = 50;
@@ -609,25 +796,28 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 			//large map
 			if(e.getX() > 725 && e.getX() < 825 && e.getY() > 176 & e.getY() < 225)
 			{
+				audioPlayer.playAudio("/Sounds/primaryMouseClick.wav");
 				mapSize = "Large";
-				mapWidth = 75;
-				mapHeight = 75;
+				mapWidth = 70;
+				mapHeight = 70;
 				mapSizeOptions = false;
 			}
 			//huge map
 			if(e.getX() > 725 && e.getX() < 825 && e.getY() > 226 & e.getY() < 275)
 			{
+				audioPlayer.playAudio("/Sounds/primaryMouseClick.wav");
 				mapSize = "Huge";
-				mapWidth = 100;
-				mapHeight = 100;
+				mapWidth = 175;
+				mapHeight = 175;
 				mapSizeOptions = false;
 			}
 		}
-		if(newGameSetup == true)
+		if(newGameSetup == true && pauseMenu == false)
 		{
 			//map sizes menu
 			if(e.getX() > 600 && e.getX() < 700 && e.getY() > 100 & e.getY() < 150)
 			{
+				audioPlayer.playAudio("/Sounds/primaryMouseClick.wav");
 				if(mapSizeOptions == false)
 					mapSizeOptions = true;
 				else
@@ -637,6 +827,7 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 			//map sizes menu
 			if(e.getX() > 600 && e.getX() < 700 && e.getY() > 200 & e.getY() < 250)
 			{
+				audioPlayer.playAudio("/Sounds/primaryMouseClick.wav");
 				if(terrainOptionsAction == false)
 					terrainOptionsAction = true;
 				else
@@ -645,17 +836,19 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 			//start game
 			if(e.getX() > 900 && e.getX() < 1000 && e.getY() > 725 & e.getY() < 775)
 			{
+				audioPlayer.playAudio("/Sounds/primaryMouseClick.wav");
 				newGameSetup = false;
 				mapView = true;	
 				startGame = true;		
 			}
 		}
 		//terrain options
-		if(terrainOptionsAction == true)
+		if(terrainOptionsAction == true && pauseMenu == false)
 		{
 			//map sizes menu
 			if(e.getX() > 725 && e.getX() < 850 && e.getY() > 150 & e.getY() < 200)
-			{				
+			{
+				audioPlayer.playAudio("/Sounds/primaryMouseClick.wav");				
 				terrainOptions = "Pangea";
 				terrainType = terrainOptions;
 				terrainOptionsAction = false;
@@ -663,13 +856,14 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 			//start game
 			if(e.getX() > 725 && e.getX() < 850 && e.getY() > 200 & e.getY() < 250)
 			{
+				audioPlayer.playAudio("/Sounds/primaryMouseClick.wav");
 				terrainOptions = "Archipelago";
 				terrainType = terrainOptions;
 				terrainOptionsAction = false;		
 			}
 		}
 		//building menu
-		if(mapView == true && gameData.getCityFocusNumber() > -1 && cityConstructionFocus == true)
+		if(mapView == true && gameData.getCityFocusNumber() > -1 && cityConstructionFocus == true && pauseMenu == false)
 		{
 			int cityX = gameData.getPlayerCitiesSpecific(gameData.getCityFocusNumber()).getX();
 			int cityY = gameData.getPlayerCitiesSpecific(gameData.getCityFocusNumber()).getY();
@@ -682,14 +876,12 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 
 				gameData.setNewUnitToBuild(buildY-currentBuildOptionsVertical, gameData.getPlayerBuildableUnitsSpecific(buildY-currentBuildOptionsVertical).getName(),(int)Math.floor((cityX+gameData.getCurrentMapHorizontal())/75),(int)Math.floor((cityY+gameData.getCurrentMapVertical()-2)/75));
 				cityConstructionFocus = false;
-
 			}
-
 		}
-		if(gameData.getPlayerTurn() == true)
+		if(gameData.getPlayerTurn() == true && pauseMenu == false)
 		{
 			//next turn
-			if(e.getX() > 1450 && e.getX() < 1525 && e.getY() > 85 & e.getY() < 125)
+			if(e.getX() > 1125 && e.getX() < 1200 && e.getY() > 775 & e.getY() < 815)
 			{
 				gameData.setPlayerTurn(false);
 				gameData.setUnitFocusNumber(-1);
@@ -701,14 +893,67 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 				gameData.setPlayerTurn(true);
 				gameData.setTurnNumber(gameData.getTurnNumber()+1);		
 			}
-			
+			//minimap to terrain map movement			
+			if(e.getX() > 1225 && e.getX() < 1575 && e.getY() > 525 & e.getY() < 875)
+			{
+				int tempx = e.getX()- 1225; //takes into account the frame
+				int tempy = e.getY()- 525; //takes in to account the frame
+
+				int x = (int)Math.floor((tempx/(minimapWidth/mapWidth)));
+				int y = (int)Math.floor((tempy/(minimapWidth/mapWidth)));
+
+				int terrainX;
+
+				int tempMH = gameData.getCurrentMapHorizontal();
+				int tempMV = gameData.getCurrentMapVertical();
+
+				//establishes which array of the terrain the user has clicked
+				terrainX = x%mapWidth;
+
+				if(x - 10 > -1 &&  y - 6 > -1)
+				{
+					gameData.setCurrentMapHorizontal(x - 10);
+
+					if(y - 6 + mapY < mapHeight)
+						gameData.setCurrentMapVertical(y - 6);
+					else
+						gameData.setCurrentMapVertical(mapHeight - mapY);
+
+					int deltaX = (tempMH - gameData.getCurrentMapHorizontal())*75;
+					int deltaY = (tempMV - gameData.getCurrentMapVertical())*75;
+					gameData.updateAllMovementData(deltaX,deltaY);
+				}
+				else if(x - 10 < -1 && y - 6 > -1)
+				{
+					gameData.setCurrentMapHorizontal(0);
+
+					if(y - 6 + mapY < mapHeight)
+						gameData.setCurrentMapVertical(y - 6);
+					else
+						gameData.setCurrentMapVertical(mapHeight - mapY);
+
+					int deltaX = (tempMH - gameData.getCurrentMapHorizontal())*75;
+					int deltaY = (tempMV - gameData.getCurrentMapVertical())*75;
+					gameData.updateAllMovementData(deltaX,deltaY);
+				}
+				else if(x - 10 > -1 && y - 6 < -1)
+				{
+					gameData.setCurrentMapHorizontal(x - 10);
+					gameData.setCurrentMapVertical(0);
+
+					int deltaX = (tempMH - gameData.getCurrentMapHorizontal())*75;
+					int deltaY = (tempMV - gameData.getCurrentMapVertical())*75;
+					gameData.updateAllMovementData(deltaX,deltaY);
+				}
+			}			
 			//special ability button
 			if(mapView == true && gameData.getUnitFocusNumber() > -1)
 			{
 				if(gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).getSpecialAbility() != "")
 				{
-					if(e.getX() > 1380 && e.getX() < 1430 && e.getY() > 185 & e.getY() < 210)
+					if(e.getX() > 220 && e.getX() < 270 && e.getY() > 680 & e.getY() < 705)
 					{
+						audioPlayer.playAudio("/Sounds/primaryMouseClick.wav");
 						gameData.getPlayerUnitsSpecific(gameData.getUnitFocusNumber()).setSpecialAbilityActivate(true);
 					}
 				}
@@ -725,7 +970,7 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 					gameData.setUnitFocusNumber(-1);
 					gameData.setCityFocusNumber(i);
 					break;
-				}									
+				}													
 			}
 			//city focuses
 			if(gameData.getCityFocusNumber() > -1)
@@ -768,6 +1013,82 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 				}
 			}
 		}
+		//pause menu
+		if(mapView == true && pauseMenu == false)
+		{
+			if(e.getX() > 1500 && e.getX() < 1550 && e.getY() > 30 && e.getY() < 50)
+			{
+				audioPlayer.playAudio("/Sounds/primaryMouseClick.wav");
+				pauseMenu = true;
+			}								
+		}
+		//main menu
+		if(mainMenu == true && pauseMenu == false)
+		{
+			//new game			
+			if(e.getX() > 700 && e.getX() < 800 && e.getY() > 400 && e.getY() < 450)
+			{
+				audioPlayer.playAudio("/Sounds/primaryMouseClick.wav");
+				gameWindow.newGame();
+			}				
+			//load game
+			if(e.getX() > 700 && e.getX() < 800 && e.getY() > 460 && e.getY() < 510)
+			{
+				audioPlayer.playAudio("/Sounds/primaryMouseClick.wav");
+				gameWindow.loadGame();
+			}				
+			//exit game
+			if(e.getX() > 700 && e.getX() < 800 && e.getY() > 520 && e.getY() < 570)
+			{
+				audioPlayer.playAudio("/Sounds/primaryMouseClick.wav");
+				gameWindow.exitGame();
+			}				
+		}
+		if(pauseMenu == true)
+		{
+			//save game			
+			if(e.getX() > 700 && e.getX() < 900 && e.getY() > 400 && e.getY() < 450)
+			{
+				audioPlayer.playAudio("/Sounds/primaryMouseClick.wav");
+				gameWindow.saveGame();
+				pauseMenu = false;
+			}				
+			//load game			
+			if(e.getX() > 700 && e.getX() < 900 && e.getY() > 450 && e.getY() < 500)
+			{
+				audioPlayer.playAudio("/Sounds/primaryMouseClick.wav");
+				gameWindow.loadGame();
+			}				
+			//return to main menu			
+			if(e.getX() > 700 && e.getX() < 900 && e.getY() > 500 && e.getY() < 550)
+			{
+				audioPlayer.playAudio("/Sounds/primaryMouseClick.wav");
+
+				int t = JOptionPane.showConfirmDialog(this,"Are you sure you want to return to the main menu?",null, JOptionPane.YES_NO_OPTION);
+
+				if(t == 0)
+				{
+					gameWindow.saveGame();
+					gameWindow.returnMainMenu();
+				}				
+			}
+			//exit game			
+			if(e.getX() > 700 && e.getX() < 900 && e.getY() > 550 && e.getY() < 600)
+			{
+				audioPlayer.playAudio("/Sounds/primaryMouseClick.wav");
+
+				int t = JOptionPane.showConfirmDialog(this,"Do you want to save before you quit?",null, JOptionPane.YES_NO_OPTION);
+
+				if(t == 0)
+				{
+					pauseMenu = false;
+					gameWindow.saveGame();
+					gameWindow.exitGame();
+				}
+				else
+					gameWindow.exitGame();
+			}
+		}
 	}
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
@@ -805,7 +1126,7 @@ public class GamePanel extends JPanel  implements ActionListener,KeyListener,Mou
 					gameData.setUnitFocusNumber(i);
 					gameData.setCityFocusNumber(-1);
 					break;
-				}					
+				}								
 			}		
 		}		
 	}
